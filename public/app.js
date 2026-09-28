@@ -244,27 +244,24 @@ function renderInbox(){
 }
 $("t-show").addEventListener("input",renderInbox);
 
-/* refresh: runs the scan routine now via the Claude Code Remote connector */
-const SCAN_TRIGGER="trig_01X3UnRSzVMWYpWz4czfaApb";
-let mcp=null, lastRefresh=null;
+/* refresh: runs the moment scan now via /api/scan */
+let lastRefresh=null;
 function refreshLabel(){
-  if(!lastRefresh){$("refreshNote").textContent="";return;}
+  if(!lastRefresh){$("refreshNote").textContent="";$("refreshBtn").disabled=false;return;}
   const mins=Math.round((Date.now()-new Date(lastRefresh).getTime())/60000);
-  $("refreshNote").textContent=mins<15?`Scan started ${mins<1?"just now":mins+" min ago"}. New moments appear here in a few minutes.`:`Last manual check: ${new Date(lastRefresh).toLocaleString([], {weekday:"short",hour:"numeric",minute:"2-digit"})}`;
+  $("refreshNote").textContent=`Last check: ${mins<1?"just now":new Date(lastRefresh).toLocaleString([], {weekday:"short",hour:"numeric",minute:"2-digit"})}`;
   $("refreshBtn").disabled=mins<10;
 }
 $("refreshBtn").addEventListener("click",async()=>{
-  const btn=$("refreshBtn");btn.disabled=true;$("refreshNote").textContent="Starting the scan…";
+  const btn=$("refreshBtn");btn.disabled=true;$("refreshNote").textContent="Checking last night's and today's games…";
   try{
-    await mcp.callTool("Claude Code Remote","fire_trigger",{trigger_id:SCAN_TRIGGER,
-      text:"Manual refresh from the Meme Lab at "+new Date().toISOString()+". Scan the last 24 hours up to right now, including games that finished today. Skip moments already in the database."},{cache:false});
-    lastRefresh=new Date().toISOString();
-    try{await db.doc("meta/refresh").set({at:lastRefresh});}catch(e){}
-    refreshLabel();toast("Scan started");
-  }catch(e){
-    btn.disabled=false;
-    $("refreshNote").textContent=e.code==="not_granted"||e.code==="denied"?"Allow the Claude Code Remote connector for this page to use refresh.":"Couldn't start the scan ("+(e.code||"error")+"). Try again in a minute.";
-  }
+    const r=await fetch("/api/scan",{method:"POST"});const res=await r.json();
+    if(r.status===429){lastRefresh=res.at;refreshLabel();toast("Checked less than 10 minutes ago");return;}
+    if(!r.ok)throw new Error(res.error||r.status);
+    lastRefresh=new Date().toISOString();refreshLabel();
+    toast(res.added?`${res.added} new moment${res.added>1?"s":""}`:"No new moments");
+    if(res.errors&&res.errors.length)$("refreshNote").textContent+=` · ${res.errors.length} feed problem${res.errors.length>1?"s":""}`;
+  }catch(e){btn.disabled=false;$("refreshNote").textContent="Couldn't run the check ("+(e.message||"error")+"). Try again in a minute.";}
 });
 setInterval(refreshLabel,60000);
 
@@ -345,4 +342,5 @@ db=createDb();
 db.collection("templates").onSnapshot(s=>{templates=s.docs.map(d=>({id:d.id,...d.data()}));$("dbStatus").textContent=`Library: ${templates.length} templates`;analyze();renderLib();renderMoments();renderInbox();},
   e=>{$("dbStatus").textContent="Library error: "+e.message;});
 db.collection("moments").orderBy("createdAt","desc").limit(150).onSnapshot(s=>{moments=s.docs.map(d=>({id:d.id,...d.data()}));renderMoments();renderInbox();},()=>{});
-// TODO: "Check for new moments" (mcp in the artifact) needs a server route; the button stays hidden for now.
+$("refreshBtn").hidden=false;
+db.doc("meta/refresh").onSnapshot(d=>{lastRefresh=d.exists?d.data().at:null;refreshLabel();},()=>{});

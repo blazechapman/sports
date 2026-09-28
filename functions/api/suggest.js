@@ -1,26 +1,7 @@
 // POST /api/suggest — asks Claude to tag a meme template with use cases, format and tone.
 // Needs the ANTHROPIC_API_KEY secret (wrangler pages secret put ANTHROPIC_API_KEY, or .dev.vars locally).
 import Anthropic from "@anthropic-ai/sdk";
-
-// Keep in sync with USE_CASES in public/app.js.
-const USE_CASES = {
-  blowout: "Blowout - Won by a big margin",
-  upset: "Upset - Underdog or unranked team wins",
-  collapse: "Collapse - Blown lead, choke, late meltdown on the field",
-  rivalry: "Rivalry - Rival or trophy game result",
-  clutch: "Clutch finish - Walk-off, buzzer-beater, game-winner",
-  bad_call: "Bad call - Refs, replay, controversial call",
-  coaching: "Coaching - Head-scratching decision, hot seat, firing",
-  meltdown: "Fanbase meltdown - A fanbase losing it online",
-  streak: "Streak - Streak extended or snapped",
-  rankings: "Rankings - Polls, snubs, playoff picture",
-  transaction: "Transaction - Trade, signing, draft, portal",
-  fantasy: "Fantasy pain - Lineup regret, waiver misery",
-  hype: "Hype - Before a big game, bold predictions",
-  milestone: "Milestone - Record or career milestone",
-  revenge: "Revenge game - Facing a former team",
-  cat_watch: "Cat Watch - A cat team wins by a decent margin",
-};
+import { USE_CASES } from "../../lib/rules.js";
 
 const SYSTEM = `You tag meme templates for @sportsmemery, a sports meme Instagram account. Given a template, pick the use cases it genuinely fits (2 to 5), its best format, and its tone.
 

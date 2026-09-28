@@ -9,7 +9,9 @@
     "db:migrate": "wrangler d1 migrations apply memelab --remote",
     "db:seed": "npm run seed:build && wrangler d1 execute memelab --remote --file=data/seed.sql",
     "dev": "wrangler pages dev",
-    "deploy": "wrangler pages deploy"
+    "deploy": "wrangler pages deploy",
+    "test": "node --test test/*.test.mjs",
+    "deploy:scan": "wrangler deploy --config worker/wrangler.toml"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"

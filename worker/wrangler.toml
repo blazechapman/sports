@@ -1,0 +1,13 @@
+name = "memelab-scan"
+main = "index.js"
+compatibility_date = "2026-09-01"
+
+# Cron times are UTC. 12:45 UTC = 8:45 AM ET daily (7:45 AM in winter);
+# 03:45 UTC Sun/Mon = 11:45 PM ET Saturday/Sunday nights.
+[triggers]
+crons = ["45 12 * * *", "45 3 * * 0,1"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "memelab"
+database_id = "REPLACE_WITH_ID_FROM_wrangler_d1_create"
