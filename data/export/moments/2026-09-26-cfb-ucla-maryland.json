@@ -1,0 +1,26 @@
+{
+  "captionStarter": "UCLA 54-3 over Maryland.",
+  "concept": "Meme of the Week slide: Maryland's 3 points",
+  "createdAt": "2026-09-27T13:00:00Z",
+  "description": "UCLA beat Maryland 54-3",
+  "gameDate": "2026-09-26",
+  "headline": "UCLA 54, Maryland 3",
+  "league": "CFB",
+  "loser": "Maryland",
+  "loserScore": 3,
+  "offLimits": false,
+  "postDate": "2026-09-28",
+  "postTime": "7:00 PM",
+  "potential": "Medium",
+  "source": "auto",
+  "sources": [
+    "https://www.si.com/college-football/week-4-live-scores-updates-takeaways"
+  ],
+  "status": "new",
+  "urgency": "Batch",
+  "useCases": [
+    "blowout"
+  ],
+  "winner": "UCLA",
+  "winnerScore": 54
+}

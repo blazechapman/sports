@@ -1,0 +1,28 @@
+{
+  "captionStarter": "Broncos 30-26 over the Rams. Down 16-0 at halftime, won it with 47 seconds left.",
+  "concept": "Split-screen: Rams fans at halftime up 16-0 / same fans after Stafford's final-play interception",
+  "createdAt": "2026-09-28T21:20:00Z",
+  "description": "Bo Nix's goal-line keeper with 47 seconds left and a 66-yard Talanoa Hufanga pick-six lifted Denver past the Rams 30-26 after trailing 16-0 at halftime.",
+  "gameDate": "2026-09-27",
+  "headline": "Broncos erase 16-0 halftime hole, beat Rams 30-26 on Sunday night",
+  "league": "NFL",
+  "loser": "Rams",
+  "loserScore": 26,
+  "offLimits": false,
+  "postDate": "2026-09-28",
+  "postTime": "7:00 PM",
+  "potential": "High",
+  "source": "auto",
+  "sources": [
+    "https://www.cbsnews.com/losangeles/news/bo-nix-and-talanoa-hufanga-lead-the-broncos-past-the-rams-30-26-in-a-sunday-night-thriller/",
+    "https://wtop.com/news/2026/09/bo-nix-and-talanoa-hufanga-lead-the-broncos-past-the-rams-30-26-in-a-sunday-night-thriller/"
+  ],
+  "status": "new",
+  "urgency": "Post today",
+  "useCases": [
+    "collapse",
+    "clutch"
+  ],
+  "winner": "Broncos",
+  "winnerScore": 30
+}

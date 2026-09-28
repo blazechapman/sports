@@ -1,0 +1,17 @@
+{
+  "name": "memelab",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "seed:build": "node scripts/build-seed.mjs",
+    "db:migrate:local": "wrangler d1 migrations apply memelab --local",
+    "db:seed:local": "npm run seed:build && wrangler d1 execute memelab --local --file=data/seed.sql",
+    "db:migrate": "wrangler d1 migrations apply memelab --remote",
+    "db:seed": "npm run seed:build && wrangler d1 execute memelab --remote --file=data/seed.sql",
+    "dev": "wrangler pages dev",
+    "deploy": "wrangler pages deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

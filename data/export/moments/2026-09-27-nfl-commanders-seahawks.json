@@ -1,0 +1,28 @@
+{
+  "captionStarter": "Commanders 33-31 over Seahawks. Seattle's first loss since November.",
+  "concept": "Meme of the Week slide: Seahawks' win streak dating back to November vs. the pick-six freeze frame that ended it",
+  "createdAt": "2026-09-28T14:00:00Z",
+  "description": "The Washington Commanders beat the Seattle Seahawks 33-31 on a 50-yard interception-return touchdown with 3:57 left, handing Seattle its first loss since November.",
+  "gameDate": "2026-09-27",
+  "headline": "Commanders stun Seahawks with late pick-six, 33-31",
+  "league": "NFL",
+  "loser": "Seahawks",
+  "loserScore": 31,
+  "offLimits": false,
+  "postDate": "2026-09-28",
+  "postTime": "7:00 PM",
+  "potential": "High",
+  "source": "auto",
+  "sources": [
+    "https://www.espn.com/nfl/recap?gameId=401872955",
+    "https://bleacherreport.com/game/seattle-seahawks-vs-washington-commanders-2026-9-27-12-00"
+  ],
+  "status": "new",
+  "urgency": "Batch",
+  "useCases": [
+    "upset",
+    "collapse"
+  ],
+  "winner": "Commanders",
+  "winnerScore": 33
+}

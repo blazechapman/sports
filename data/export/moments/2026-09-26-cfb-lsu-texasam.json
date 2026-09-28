@@ -1,0 +1,31 @@
+{
+  "captionStarter": "LSU 35, Texas A&M 6. Tigers just ended the Aggies' playoff talk.",
+  "concept": "Meme of the Week slide: Texas A&M's preseason top-10 hype vs. the Tiger Stadium final score",
+  "createdAt": "2026-09-27T15:30:00Z",
+  "description": "No. 10 LSU beat No. 23 Texas A&M 35-6 in Baton Rouge, the Aggies' most lopsided loss of the Mike Elko era.",
+  "gameDate": "2026-09-26",
+  "headline": "No. 10 LSU throttles No. 23 Texas A&M 35-6",
+  "league": "CFB",
+  "loser": "Texas A&M",
+  "loserScore": 6,
+  "offLimits": false,
+  "postDate": "2026-09-28",
+  "postTime": "7:00 PM",
+  "potential": "High",
+  "source": "auto",
+  "sources": [
+    "https://www.espn.com/college-football/recap/_/gameId/401856702",
+    "https://www.houstonchronicle.com/sports/college/aggies/article/tamu-football-lsu-game-story-recap-22450128.php"
+  ],
+  "status": "new",
+  "urgency": "Batch",
+  "useCases": [
+    "upset",
+    "blowout",
+    "rivalry",
+    "cat_watch",
+    "rankings"
+  ],
+  "winner": "LSU",
+  "winnerScore": 35
+}

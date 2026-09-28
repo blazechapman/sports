@@ -1,0 +1,17 @@
+{
+  "addedAt": "2026-09-27T12:00:00Z",
+  "format": "Carousel",
+  "freshness": "classic",
+  "how": "Escalating panels of increasingly 'genius' (bad) decisions.",
+  "lastUsed": null,
+  "name": "Galaxy Brain",
+  "source": "Starter",
+  "status": "active",
+  "timesUsed": 0,
+  "tone": "Roast",
+  "useCases": [
+    "coaching",
+    "bad_call",
+    "fantasy"
+  ]
+}

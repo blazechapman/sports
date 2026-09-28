@@ -1,0 +1,28 @@
+{
+  "captionStarter": "Iowa 20-19 over Michigan. Won it on the final play.",
+  "concept": "Meme of the Week slide: Michigan fans' reaction in the final 10 seconds vs. Iowa fans mobbing the field",
+  "createdAt": "2026-09-27T15:30:00Z",
+  "description": "Iowa beat Michigan 20-19 on a game-ending 16-yard touchdown pass from Hank Brown to Reece Vander Zee.",
+  "gameDate": "2026-09-26",
+  "headline": "Iowa steals Big Ten opener from Michigan on final play",
+  "league": "CFB",
+  "loser": "Michigan",
+  "loserScore": 19,
+  "offLimits": false,
+  "postDate": "2026-09-28",
+  "postTime": "7:00 PM",
+  "potential": "High",
+  "source": "auto",
+  "sources": [
+    "https://mgoblue.com/news/2026/9/26/football-no-17-iowa-downs-no-18-michigan-on-final-play",
+    "https://www.hawkcentral.com/story/sports/college/iowa/football/2026/09/26/iowa-football-michigan-score-live-updates-hawkeyes-wolverines-recap--live/91920144007/"
+  ],
+  "status": "new",
+  "urgency": "Batch",
+  "useCases": [
+    "clutch",
+    "rivalry"
+  ],
+  "winner": "Iowa",
+  "winnerScore": 20
+}

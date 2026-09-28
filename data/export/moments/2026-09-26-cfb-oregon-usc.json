@@ -1,0 +1,28 @@
+{
+  "captionStarter": "Oregon 41, USC 27. Ducks win it on the road in the rivalry.",
+  "concept": "Quick hit: USC's preseason swagger vs. the scoreboard after the Coliseum lights came on",
+  "createdAt": "2026-09-27T17:00:00Z",
+  "description": "No. 20 Oregon beat No. 12 USC 41-27 on the road, with quarterback Dylan Raiola throwing for 289 yards and two touchdowns.",
+  "gameDate": "2026-09-26",
+  "headline": "No. 20 Oregon topples No. 12 USC 41-27 in LA",
+  "league": "CFB",
+  "loser": "USC",
+  "loserScore": 27,
+  "offLimits": false,
+  "postDate": "2026-09-28",
+  "postTime": "7:00 PM",
+  "potential": "Medium",
+  "source": "auto",
+  "sources": [
+    "https://www.espn.com/college-football/game/_/gameId/401858469/oregon-usc",
+    "https://usctrojans.com/news/2026/9/26/usc-trojans-football-game-recap-associated-press-ap-oregon-ducks-jayden-maiava"
+  ],
+  "status": "new",
+  "urgency": "Batch",
+  "useCases": [
+    "upset",
+    "rivalry"
+  ],
+  "winner": "Oregon",
+  "winnerScore": 41
+}

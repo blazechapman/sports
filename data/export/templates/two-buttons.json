@@ -1,0 +1,17 @@
+{
+  "addedAt": "2026-09-27T12:00:00Z",
+  "format": "Carousel",
+  "freshness": "classic",
+  "how": "Sweating person choosing between two bad options.",
+  "lastUsed": null,
+  "name": "Two Buttons",
+  "source": "Starter",
+  "status": "active",
+  "timesUsed": 0,
+  "tone": "Relatable",
+  "useCases": [
+    "coaching",
+    "fantasy",
+    "hype"
+  ]
+}

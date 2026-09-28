@@ -1,0 +1,27 @@
+{
+  "captionStarter": "Ravens 34-31 over Cowboys in Rio. Tyler Loop hit a 56-yarder as time expired.",
+  "concept": "Split-screen: Cowboys sideline celebrating the game-tying kick / same sideline 7 seconds later watching Tyler Loop's 56-yarder go through",
+  "createdAt": "2026-09-28T14:00:00Z",
+  "description": "The Baltimore Ravens beat the Dallas Cowboys 34-31 in Rio de Janeiro on Tyler Loop's 56-yard field goal as time expired, after Dallas had tied the game with 7 seconds left.",
+  "gameDate": "2026-09-27",
+  "headline": "Ravens walk it off in Rio to beat Cowboys 34-31",
+  "league": "NFL",
+  "loser": "Cowboys",
+  "loserScore": 31,
+  "offLimits": false,
+  "postDate": "2026-09-28",
+  "postTime": "7:00 PM",
+  "potential": "High",
+  "source": "auto",
+  "sources": [
+    "https://www.espn.com/nfl/recap/_/gameId/401872960",
+    "https://www.wmar2news.com/sports/ravens-defeat-cowboys-sept-27-2026"
+  ],
+  "status": "new",
+  "urgency": "Batch",
+  "useCases": [
+    "clutch"
+  ],
+  "winner": "Ravens",
+  "winnerScore": 34
+}

@@ -1,0 +1,28 @@
+{
+  "captionStarter": "Texas 20-17 over Tennessee, 10 sacks later.",
+  "concept": "Meme of the Week slide: Tennessee's QB after sack number 10",
+  "createdAt": "2026-09-27T13:00:00Z",
+  "description": "Texas beat Tennessee 20-17 at Neyland, with 10 sacks (5 from Colin Simmons)",
+  "gameDate": "2026-09-26",
+  "headline": "No. 1 Texas edges No. 14 Tennessee with 10 sacks",
+  "league": "CFB",
+  "loser": "Tennessee",
+  "loserScore": 17,
+  "offLimits": false,
+  "postDate": "2026-09-28",
+  "postTime": "7:00 PM",
+  "potential": "Medium",
+  "source": "auto",
+  "sources": [
+    "https://www.espn.com/college-football/game/_/gameId/401856704/texas-tennessee",
+    "https://utsports.com/news/2026/9/26/football-1-1-longhorns-edge-14-13-vols-20-17"
+  ],
+  "status": "new",
+  "urgency": "Batch",
+  "useCases": [
+    "rankings",
+    "streak"
+  ],
+  "winner": "Texas",
+  "winnerScore": 20
+}

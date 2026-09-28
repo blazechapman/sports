@@ -1,0 +1,30 @@
+{
+  "captionStarter": "Florida 52, No. 4 Ole Miss 28. Ole Miss will be thinking about this one for a while.",
+  "concept": "3-frame Reel: 'Ole Miss, 10 years from now, finally healed' / 'Grandkid: look what I got you' (gator head) / scream",
+  "createdAt": "2026-09-27T13:00:00Z",
+  "description": "No. 21 Florida beat No. 4 Ole Miss 52-28 behind Jadan Baugh's 142 rushing yards and 3 TDs",
+  "gameDate": "2026-09-26",
+  "headline": "No. 21 Florida blows out No. 4 Ole Miss",
+  "league": "CFB",
+  "loser": "Ole Miss",
+  "loserScore": 28,
+  "offLimits": false,
+  "postDate": "2026-09-27",
+  "postTime": "11:30 AM",
+  "potential": "High",
+  "source": "auto",
+  "sources": [
+    "https://floridagators.com/news/2026/9/26/football-quick-slant-florida-vs-ole-miss-sept-26-2026",
+    "https://www.espn.com/college-football/game/_/gameId/401856699/ole-miss-florida"
+  ],
+  "status": "queued",
+  "templateId": "chubbs-gator-head",
+  "urgency": "Post today",
+  "useCases": [
+    "blowout",
+    "upset",
+    "rankings"
+  ],
+  "winner": "Florida",
+  "winnerScore": 52
+}

@@ -1,0 +1,18 @@
+{
+  "addedAt": "2026-09-27T12:00:00Z",
+  "format": "Both",
+  "freshness": "classic",
+  "how": "Leo pointing at the screen: 'that's me' recognition of a player, coach or fan moment.",
+  "lastUsed": null,
+  "name": "Leonardo DiCaprio Pointing",
+  "source": "Starter",
+  "status": "active",
+  "timesUsed": 0,
+  "tone": "Hype",
+  "useCases": [
+    "revenge",
+    "milestone",
+    "clutch",
+    "hype"
+  ]
+}

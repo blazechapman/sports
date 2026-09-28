@@ -1,0 +1,27 @@
+{
+  "captionStarter": "Georgia 41-13 over Oklahoma. Three first-half turnovers did it.",
+  "concept": "Quick hit: Oklahoma's turnover count posted next to the scoreboard",
+  "createdAt": "2026-09-27T15:30:00Z",
+  "description": "No. 2 Georgia beat Oklahoma 41-13, capitalizing on three first-half Oklahoma turnovers including an 85-yard fumble-return touchdown.",
+  "gameDate": "2026-09-26",
+  "headline": "No. 2 Georgia blows out Oklahoma 41-13",
+  "league": "CFB",
+  "loser": "Oklahoma",
+  "loserScore": 13,
+  "offLimits": false,
+  "postDate": "2026-09-28",
+  "postTime": "7:00 PM",
+  "potential": "Medium",
+  "source": "auto",
+  "sources": [
+    "https://georgiadogs.com/news/2026/9/26/football-postgame-notes-georgia-oklahoma",
+    "https://soonersports.com/news/2026/9/26/football-falls-to-no-2-georgia-in-athens"
+  ],
+  "status": "new",
+  "urgency": "Batch",
+  "useCases": [
+    "blowout"
+  ],
+  "winner": "Georgia",
+  "winnerScore": 41
+}

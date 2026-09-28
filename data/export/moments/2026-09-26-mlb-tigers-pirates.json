@@ -1,0 +1,28 @@
+{
+  "captionStarter": "Justin Verlander's final career start ends in a walk-off. Tigers 4, Pirates 3.",
+  "concept": "Meme of the Week slide: 21 years of Verlander highlights ending with a walk-off trot at Comerica Park",
+  "createdAt": "2026-09-27T17:00:00Z",
+  "description": "The Detroit Tigers rallied to beat the Pittsburgh Pirates 4-3 on a game-ending two-run homer by Eduardo Valencia in Justin Verlander's final career start.",
+  "gameDate": "2026-09-26",
+  "headline": "Justin Verlander walks off in his final career start",
+  "league": "MLB",
+  "loser": "Pirates",
+  "loserScore": 3,
+  "offLimits": false,
+  "postDate": "2026-09-28",
+  "postTime": "7:00 PM",
+  "potential": "High",
+  "source": "auto",
+  "sources": [
+    "https://www.nbcsports.com/mlb/news/justin-verlander-makes-teary-farewell-to-21-year-career-as-tigers-rally-to-beat-pirates-4-3",
+    "https://www.detroitnews.com/story/sports/mlb/tigers/2026/09/26/tigers-great-justin-verlander-exits-to-standing-ovation-in-final-start/91959231007/"
+  ],
+  "status": "new",
+  "urgency": "Batch",
+  "useCases": [
+    "milestone",
+    "clutch"
+  ],
+  "winner": "Tigers",
+  "winnerScore": 4
+}

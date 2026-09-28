@@ -1,0 +1,27 @@
+{
+  "captionStarter": "Steelers 24-21 over Vikings in Dublin, the first NFL game ever played in Ireland.",
+  "concept": "Quick hit: Steelers' 24-6 lead shrinking into a nail-biter by the final whistle at Croke Park",
+  "createdAt": "2026-09-28T14:00:00Z",
+  "description": "The Pittsburgh Steelers beat the Minnesota Vikings 24-21 in Dublin, the first regular-season NFL game played in Ireland, after leading 24-6 before a late Vikings rally.",
+  "gameDate": "2026-09-27",
+  "headline": "Steelers hold off Vikings in first-ever NFL game in Ireland",
+  "league": "NFL",
+  "loser": "Vikings",
+  "loserScore": 21,
+  "offLimits": false,
+  "postDate": "2026-09-28",
+  "postTime": "7:00 PM",
+  "potential": "Medium",
+  "source": "auto",
+  "sources": [
+    "https://www.steelers.com/news/steelers-defeat-vikings-24-21-in-ireland",
+    "https://www.nfl.com/news/steelers-hold-off-vikings-for-special-win-in-ireland-for-rooney-family"
+  ],
+  "status": "new",
+  "urgency": "Batch",
+  "useCases": [
+    "milestone"
+  ],
+  "winner": "Steelers",
+  "winnerScore": 24
+}

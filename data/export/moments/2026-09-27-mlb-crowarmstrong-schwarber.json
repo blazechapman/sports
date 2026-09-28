@@ -1,0 +1,27 @@
+{
+  "captionStarter": "Crow-Armstrong and Schwarber both finish with 45 homers. First co-HR champs since 2021.",
+  "concept": "Two-Spider-Men-pointing format: Crow-Armstrong and Schwarber both holding the home run crown, neither backing down",
+  "createdAt": "2026-09-28T15:00:00Z",
+  "description": "Pete Crow-Armstrong and Kyle Schwarber finished tied for the MLB home run lead with 45 apiece, the first co-champions since 2021.",
+  "gameDate": "2026-09-27",
+  "headline": "Crow-Armstrong and Schwarber tie for MLB home run crown at 45",
+  "league": "MLB",
+  "loser": "Kyle Schwarber",
+  "loserScore": null,
+  "offLimits": false,
+  "postDate": "2026-09-28",
+  "postTime": "7:00 PM",
+  "potential": "Medium",
+  "source": "auto",
+  "sources": [
+    "https://www.cbssports.com/mlb/news/mlb-playoffs-2026-game-162-al-west-national-league-wild-card/live/",
+    "https://bleacherreport.com/liveblogs/25503569-mlb-live-results-scores-highlights-and-updated-playoff-bracket-final-day-regular-season"
+  ],
+  "status": "new",
+  "urgency": "Batch",
+  "useCases": [
+    "milestone"
+  ],
+  "winner": "Pete Crow-Armstrong",
+  "winnerScore": null
+}

@@ -1,0 +1,27 @@
+{
+  "captionStarter": "Astros clinch the AL West at 81-81. First non-winning record to win a division in the 162-game era.",
+  "concept": "Meme of the Week slide: '.500 record' text next to 'DIVISION CHAMPS' banner in the same graphic",
+  "createdAt": "2026-09-28T14:00:00Z",
+  "description": "The Houston Astros beat the Oakland Athletics 9-0 to finish the regular season 81-81 and clinch the AL West after the Texas Rangers lost to the Twins, becoming the first team with a non-winning record to win a division in the 162-game era.",
+  "gameDate": "2026-09-27",
+  "headline": "Astros clinch AL West at .500 with 9-0 win over A's",
+  "league": "MLB",
+  "loser": "Athletics",
+  "loserScore": 0,
+  "offLimits": false,
+  "postDate": "2026-09-28",
+  "postTime": "7:00 PM",
+  "potential": "High",
+  "source": "auto",
+  "sources": [
+    "https://www.houstonchronicle.com/sports/astros/article/houston-clinches-al-west-title-22451507.php",
+    "https://www.thesportsleader.com/2026/09/27/mlb-roundup-astros-blank-as-capture-al-west-title/"
+  ],
+  "status": "new",
+  "urgency": "Batch",
+  "useCases": [
+    "milestone"
+  ],
+  "winner": "Astros",
+  "winnerScore": 9
+}

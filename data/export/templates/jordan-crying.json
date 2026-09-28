@@ -1,0 +1,19 @@
+{
+  "addedAt": "2026-09-27T12:00:00Z",
+  "format": "Both",
+  "freshness": "classic",
+  "how": "Crying Jordan face pasted on the losing player, coach or mascot.",
+  "lastUsed": null,
+  "name": "Crying Jordan",
+  "source": "Starter",
+  "status": "active",
+  "timesUsed": 0,
+  "tone": "Roast",
+  "useCases": [
+    "blowout",
+    "upset",
+    "collapse",
+    "rivalry",
+    "meltdown"
+  ]
+}

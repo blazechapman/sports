@@ -1,0 +1,18 @@
+{
+  "addedAt": "2026-09-27T12:00:00Z",
+  "format": "Both",
+  "freshness": "classic",
+  "how": "Setup of an obvious outcome, then Pikachu's shocked face when it happens.",
+  "lastUsed": null,
+  "name": "Surprised Pikachu",
+  "source": "Starter",
+  "status": "active",
+  "timesUsed": 0,
+  "tone": "Disbelief",
+  "useCases": [
+    "upset",
+    "collapse",
+    "streak",
+    "coaching"
+  ]
+}

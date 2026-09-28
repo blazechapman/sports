@@ -1,0 +1,27 @@
+{
+  "captionStarter": "49ers 36-30 over Cardinals. The trick play went 82 yards on the third snap.",
+  "concept": "Quick hit: The 82-yard hook-and-ladder play broken down frame by frame",
+  "createdAt": "2026-09-28T14:00:00Z",
+  "description": "The San Francisco 49ers beat the Arizona Cardinals 36-30 behind four Brock Purdy touchdown passes, including an 82-yard hook-and-ladder trick play to open the game.",
+  "gameDate": "2026-09-27",
+  "headline": "49ers pull off 82-yard hook-and-ladder, hold off Cardinals 36-30",
+  "league": "NFL",
+  "loser": "Cardinals",
+  "loserScore": 30,
+  "offLimits": false,
+  "postDate": "2026-09-28",
+  "postTime": "7:00 PM",
+  "potential": "Medium",
+  "source": "auto",
+  "sources": [
+    "https://www.espn.com/nfl/recap/_/gameId/401872958",
+    "https://www.49erswebzone.com/articles/203667-recap-survive-comeback-feisty-cardinals/"
+  ],
+  "status": "new",
+  "urgency": "Batch",
+  "useCases": [
+    "hype"
+  ],
+  "winner": "49ers",
+  "winnerScore": 36
+}

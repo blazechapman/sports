@@ -1,0 +1,18 @@
+{
+  "addedAt": "2026-09-27T12:00:00Z",
+  "format": "Carousel",
+  "freshness": "classic",
+  "how": "Four panels: the plan goes well, well, then the third step backfires and Gru double-takes.",
+  "lastUsed": null,
+  "name": "Gru's Plan",
+  "source": "Starter",
+  "status": "active",
+  "timesUsed": 0,
+  "tone": "Disbelief",
+  "useCases": [
+    "collapse",
+    "coaching",
+    "upset",
+    "hype"
+  ]
+}

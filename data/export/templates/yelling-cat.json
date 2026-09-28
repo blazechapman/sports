@@ -1,0 +1,19 @@
+{
+  "addedAt": "2026-09-27T12:00:00Z",
+  "format": "Carousel",
+  "freshness": "classic",
+  "how": "Left: the angry losing fanbase or coach. Right: the unbothered winner. Perfect for cat teams.",
+  "lastUsed": null,
+  "name": "Woman Yelling at Cat",
+  "source": "Starter",
+  "status": "active",
+  "timesUsed": 0,
+  "tone": "Roast",
+  "useCases": [
+    "blowout",
+    "cat_watch",
+    "meltdown",
+    "bad_call",
+    "rivalry"
+  ]
+}

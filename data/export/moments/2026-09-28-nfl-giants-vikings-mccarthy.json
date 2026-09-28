@@ -1,0 +1,27 @@
+{
+  "captionStarter": "Giants acquire J.J. McCarthy from the Vikings for a 2027 fifth-round pick.",
+  "concept": "Two-frame: 'No. 10 overall pick, 2024' / 'Traded for a fifth-rounder while third string on the depth chart'",
+  "createdAt": "2026-09-28T21:20:00Z",
+  "description": "The Vikings traded quarterback J.J. McCarthy to the Giants for a 2027 fifth-round pick, pending a physical.",
+  "gameDate": "2026-09-28",
+  "headline": "Giants trade for J.J. McCarthy after losing Jaxson Dart",
+  "league": "NFL",
+  "loser": "Vikings",
+  "loserScore": null,
+  "offLimits": false,
+  "postDate": "2026-09-28",
+  "postTime": "8:30 PM",
+  "potential": "Medium",
+  "source": "auto",
+  "sources": [
+    "https://www.espn.com/nfl/story/_/id/50052864/sources-giants-acquire-qb-jj-mccarthy-trade-vikings",
+    "https://www.vikings.com/news/jj-mccarthy-quarterback-trade-new-york-giants-2026-nfl-season"
+  ],
+  "status": "new",
+  "urgency": "Post today",
+  "useCases": [
+    "transaction"
+  ],
+  "winner": "Giants",
+  "winnerScore": null
+}

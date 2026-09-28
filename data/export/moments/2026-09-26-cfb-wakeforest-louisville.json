@@ -1,0 +1,28 @@
+{
+  "captionStarter": "Wake Forest 30-27 over No. 16 Louisville. Blocked the game-tying kick.",
+  "concept": "Meme of the Week slide: Louisville's kicker mid-swing next to the blocked-kick freeze frame",
+  "createdAt": "2026-09-27T15:30:00Z",
+  "description": "Unranked Wake Forest beat No. 16 Louisville 30-27 after blocking a 57-yard field goal attempt with less than 20 seconds left.",
+  "gameDate": "2026-09-26",
+  "headline": "Wake Forest blocks late FG to stun No. 16 Louisville",
+  "league": "CFB",
+  "loser": "Louisville",
+  "loserScore": 27,
+  "offLimits": false,
+  "postDate": "2026-09-28",
+  "postTime": "7:00 PM",
+  "potential": "High",
+  "source": "auto",
+  "sources": [
+    "https://www.espn.com/college-football/story/_/id/50035786/wake-forest-takes-no-16-louisville-road-upset",
+    "https://sports.yahoo.com/college-football/article/no-16-louisville-falls-to-unranked-wake-forest-for-second-loss-of-the-season-194431561.html"
+  ],
+  "status": "new",
+  "urgency": "Batch",
+  "useCases": [
+    "upset",
+    "clutch"
+  ],
+  "winner": "Wake Forest",
+  "winnerScore": 30
+}

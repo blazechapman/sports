@@ -1,0 +1,23 @@
+{
+  "concept": "",
+  "createdAt": "2026-09-27T13:00:00Z",
+  "description": "Reported in-game injury to Oregon QB Dante Moore vs. USC. Result not confirmed here.",
+  "gameDate": "2026-09-26",
+  "headline": "Oregon QB Dante Moore injured vs. USC",
+  "league": "CFB",
+  "loser": "USC",
+  "loserScore": null,
+  "offLimits": true,
+  "postDate": "",
+  "postTime": "",
+  "potential": "Low",
+  "source": "auto",
+  "sources": [
+    "https://www.si.com/college-football/week-4-live-scores-updates-takeaways"
+  ],
+  "status": "dismissed",
+  "urgency": "",
+  "useCases": [],
+  "winner": "Oregon",
+  "winnerScore": null
+}

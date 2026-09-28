@@ -1,0 +1,19 @@
+{
+  "addedAt": "2026-09-27T12:00:00Z",
+  "format": "Both",
+  "freshness": "classic",
+  "how": "Top: Drake rejects the thing. Bottom: Drake approves the better thing.",
+  "lastUsed": null,
+  "name": "Drake Hotline Bling",
+  "source": "Starter",
+  "status": "active",
+  "timesUsed": 0,
+  "tone": "Roast",
+  "useCases": [
+    "blowout",
+    "rankings",
+    "transaction",
+    "coaching",
+    "fantasy"
+  ]
+}

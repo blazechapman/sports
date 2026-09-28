@@ -1,0 +1,28 @@
+{
+  "captionStarter": "Notre Dame 49-10 over Purdue.",
+  "concept": "Quick hit: Purdue fans heading for the exits before the 4th quarter",
+  "createdAt": "2026-09-27T15:30:00Z",
+  "description": "No. 3 Notre Dame beat Purdue 49-10, with CJ Carr throwing three touchdown passes and running for another.",
+  "gameDate": "2026-09-26",
+  "headline": "No. 3 Notre Dame routs rival Purdue 49-10",
+  "league": "CFB",
+  "loser": "Purdue",
+  "loserScore": 10,
+  "offLimits": false,
+  "postDate": "2026-09-28",
+  "postTime": "7:00 PM",
+  "potential": "Medium",
+  "source": "auto",
+  "sources": [
+    "https://fightingirish.com/news/2026/09/26/irish-crush-purdue-49-10",
+    "https://www.espn.com/college-football/game/_/gameId/401858467/notre-dame-purdue"
+  ],
+  "status": "new",
+  "urgency": "Batch",
+  "useCases": [
+    "blowout",
+    "rivalry"
+  ],
+  "winner": "Notre Dame",
+  "winnerScore": 49
+}

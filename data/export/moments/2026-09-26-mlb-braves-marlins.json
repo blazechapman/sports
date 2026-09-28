@@ -1,0 +1,26 @@
+{
+  "captionStarter": "Braves 8-3 over the Marlins.",
+  "concept": "Quick hit: Marlins pitching staff, late-September edition",
+  "createdAt": "2026-09-27T15:30:00Z",
+  "description": "The Atlanta Braves beat the Miami Marlins 8-3.",
+  "gameDate": "2026-09-26",
+  "headline": "Braves blow out Marlins 8-3",
+  "league": "MLB",
+  "loser": "Marlins",
+  "loserScore": 3,
+  "offLimits": false,
+  "postDate": "2026-09-28",
+  "postTime": "7:00 PM",
+  "potential": "Low",
+  "source": "auto",
+  "sources": [
+    "https://www.mlb.com/gameday/braves-vs-marlins/2026/09/26/823813/live"
+  ],
+  "status": "new",
+  "urgency": "Batch",
+  "useCases": [
+    "blowout"
+  ],
+  "winner": "Braves",
+  "winnerScore": 8
+}

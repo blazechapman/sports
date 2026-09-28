@@ -1,0 +1,27 @@
+{
+  "captionStarter": "Maryland reportedly ready to move on from Mike Locksley after a 54-3 loss to UCLA.",
+  "concept": "Meme of the Week slide: Locksley's seat temperature graph spiking straight through the roof after the UCLA score",
+  "createdAt": "2026-09-27T17:00:00Z",
+  "description": "Multiple reports say Maryland is expected to fire head coach Mike Locksley after the Terrapins fell to 2-2 with a 54-3 loss to UCLA.",
+  "gameDate": "2026-09-26",
+  "headline": "Maryland reportedly ready to fire Mike Locksley",
+  "league": "CFB",
+  "loser": "Maryland",
+  "loserScore": 3,
+  "offLimits": false,
+  "postDate": "2026-09-28",
+  "postTime": "7:00 PM",
+  "potential": "High",
+  "source": "auto",
+  "sources": [
+    "https://sports.yahoo.com/articles/maryland-football-rumors-mike-locksley-184228353.html",
+    "https://www.baltimoresun.com/2026/09/27/maryland-football-michael-michael-locksley-buyout-contract/"
+  ],
+  "status": "new",
+  "urgency": "Batch",
+  "useCases": [
+    "coaching"
+  ],
+  "winner": "UCLA",
+  "winnerScore": 54
+}

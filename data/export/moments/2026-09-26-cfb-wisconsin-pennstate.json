@@ -1,0 +1,28 @@
+{
+  "captionStarter": "Wisconsin 24-20 over No. 13 Penn State.",
+  "concept": "Penn State fans checking the rankings Sunday morning",
+  "createdAt": "2026-09-27T13:00:00Z",
+  "description": "Unranked Wisconsin upset No. 13 Penn State 24-20",
+  "gameDate": "2026-09-26",
+  "headline": "Wisconsin upsets No. 13 Penn State",
+  "league": "CFB",
+  "loser": "Penn State",
+  "loserScore": 20,
+  "offLimits": false,
+  "postDate": "2026-09-27",
+  "postTime": "12:15 PM",
+  "potential": "High",
+  "source": "auto",
+  "sources": [
+    "https://www.si.com/college-football/week-4-live-scores-updates-takeaways"
+  ],
+  "status": "new",
+  "urgency": "Post today",
+  "useCases": [
+    "upset",
+    "rankings",
+    "meltdown"
+  ],
+  "winner": "Wisconsin",
+  "winnerScore": 24
+}

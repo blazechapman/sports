@@ -1,0 +1,28 @@
+{
+  "captionStarter": "Phillies 7, Rays 3. Philly clinches the last NL Wild Card spot on the final day.",
+  "concept": "Meme of the Week slide: Phillies fans' heart rate monitor during the four-game skid vs. the final-day clinch",
+  "createdAt": "2026-09-27T21:40:00Z",
+  "description": "The Philadelphia Phillies beat the Tampa Bay Rays 7-3 on the final day of the regular season to clinch the NL's last wild-card spot, holding off the Arizona Diamondbacks after losing four straight.",
+  "gameDate": "2026-09-27",
+  "headline": "Phillies clinch final NL Wild Card spot on the last day",
+  "league": "MLB",
+  "loser": "Rays",
+  "loserScore": 3,
+  "offLimits": false,
+  "postDate": "2026-09-28",
+  "postTime": "7:00 PM",
+  "potential": "High",
+  "source": "auto",
+  "sources": [
+    "https://sports.yahoo.com/mlb/article/phillies-avoid-disaster-clinch-nls-final-wild-card-spot-after-near-collapse-ahead-of-d-backs-212001139.html",
+    "https://6abc.com/post/aaron-nola-pitching-2-days-rest-phillies-make-4th-attempt-clinch-nl-wild-card/19877710/"
+  ],
+  "status": "new",
+  "urgency": "Batch",
+  "useCases": [
+    "milestone",
+    "clutch"
+  ],
+  "winner": "Phillies",
+  "winnerScore": 7
+}
