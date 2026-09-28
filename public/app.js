@@ -20,7 +20,7 @@ const MARGIN={NFL:14,CFB:14,NBA:15,MLB:5,NHL:3};
 const LEAGUE_TAGS={NFL:["#nflmemes","#nfl"],CFB:["#cfbmemes","#collegefootball"],MLB:["#mlbmemes","#baseballmemes"],NBA:["#nbamemes","#nba"],NHL:["#nhlmemes","#hockeymemes"]};
 const CAT_NAMES=["tiger","lion","panther","jaguar","bengal","wildcat","cougar","bobcat","bearcat","lynx","puma","leopard","cheetah","catamount","sabercat",
  "jags","lsu","clemson","auburn","missouri","mizzou","memphis tigers","kentucky","arizona wildcats","kansas state","k-state","northwestern","penn state","pitt","houston cougars","byu","washington state","wsu","cincinnati bearcats","villanova","texas state","ohio bobcats","montana state","towson","grambling","jackson state","tennessee state","uab","northern iowa","prairie view"];
-let db=null, sample=null, templates=[], moments=[], picked=null, editingId=null;
+let db=null, templates=[], moments=[], picked=null, editingId=null;
 
 const $=id=>document.getElementById(id);
 function toast(t){const el=$("toast");el.textContent=t;el.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>el.hidden=true,2200);}
@@ -323,12 +323,14 @@ $("suggestBtn").addEventListener("click",async()=>{
   const text=$("a-name").value+". "+$("a-how").value;if(text.trim().length<4){toast("Add a name and how it works first");return;}
   const btn=$("suggestBtn"),note=$("suggestNote");btn.disabled=true;
   let ucs=null;
-  if(sample){note.textContent="Asking Claude…";
-    try{const res=await sample.json(`You tag meme templates for a sports meme Instagram account. Use case ids and meanings:\n${USE_CASES.map(u=>u[0]+": "+u[1]+" - "+u[2]).join("\n")}\n\nTemplate: ${$("a-name").value}\nHow it works: ${$("a-how").value}\n\nReturn JSON only: {"useCases":[ids that genuinely fit, 2 to 5],"format":"Reel"|"Carousel"|"Both","tone":"Roast"|"Celebration"|"Disbelief"|"Relatable"|"Hype","reason":"one short sentence"}`,{modelTier:"quick"});
-      ucs=(res.useCases||[]).filter(u=>UC[u]);if(res.format)$("a-format").value=res.format;if(res.tone)$("a-tone").value=res.tone;note.textContent=res.reason||"Suggested by Claude. Adjust as needed.";}
-    catch(e){ucs=null;note.textContent=e.code==="not_granted"?"Claude suggestions are off. Using keyword matching.":"Claude couldn't answer. Using keyword matching.";}
-  }
-  if(!ucs){ucs=keywordSuggest(text);if(!sample)note.textContent=ucs.length?"Suggested from keywords. Adjust as needed.":"No keyword match. Tick the use cases yourself.";}
+  note.textContent="Asking Claude…";
+  try{
+    const r=await fetch("/api/suggest",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:$("a-name").value,how:$("a-how").value})});
+    const res=await r.json();
+    if(!r.ok)throw Object.assign(new Error(res.error),{code:res.error});
+    ucs=(res.useCases||[]).filter(u=>UC[u]);if(res.format)$("a-format").value=res.format;if(res.tone)$("a-tone").value=res.tone;note.textContent=res.reason||"Suggested by Claude. Adjust as needed.";
+  }catch(e){ucs=null;note.textContent=e.code==="not_configured"?"Claude suggestions aren't set up (no API key). Using keyword matching.":"Claude couldn't answer. Using keyword matching.";}
+  if(!ucs){ucs=keywordSuggest(text);if(!ucs.length)note.textContent+=" No keyword match either. Tick the use cases yourself.";}
   const cur=readChips("auc");renderChips($("a-uc"),"auc",[...new Set([...cur,...ucs])],ucs);btn.disabled=false;
 });
 
@@ -343,4 +345,4 @@ db=createDb();
 db.collection("templates").onSnapshot(s=>{templates=s.docs.map(d=>({id:d.id,...d.data()}));$("dbStatus").textContent=`Library: ${templates.length} templates`;analyze();renderLib();renderMoments();renderInbox();},
   e=>{$("dbStatus").textContent="Library error: "+e.message;});
 db.collection("moments").orderBy("createdAt","desc").limit(150).onSnapshot(s=>{moments=s.docs.map(d=>({id:d.id,...d.data()}));renderMoments();renderInbox();},()=>{});
-// TODO: Claude-powered "Suggest use cases" (sample) and "Check for new moments" (mcp) need server routes; keyword fallback is used for now.
+// TODO: "Check for new moments" (mcp in the artifact) needs a server route; the button stays hidden for now.
