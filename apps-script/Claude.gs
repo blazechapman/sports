@@ -7,7 +7,8 @@ const CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
 const CLAUDE_MODEL = 'claude-opus-5-5';
 
 function claudeKey_() {
-  return PropertiesService.getScriptProperties().getProperty('ANTHROPIC_API_KEY');
+  const key = PropertiesService.getScriptProperties().getProperty('ANTHROPIC_API_KEY');
+  return key ? key.trim() : null; // pasted keys often carry a stray space or line break
 }
 
 /**
@@ -99,5 +100,13 @@ function suggestUseCases_(name, how) {
 
 /** Run from the editor to check the API key: prints a suggestion to the log. */
 function testClaude() {
+  const key = claudeKey_();
+  if (!key) {
+    Logger.log('No ANTHROPIC_API_KEY in Script Properties.');
+    return;
+  }
+  Logger.log('Key check: starts with "' + key.slice(0, 13) + '…", ' + key.length + ' characters.');
+  if (!key.startsWith('sk-ant-')) Logger.log('That is not a secret key. It should start with sk-ant-. Copy the key from the popup shown when you create it, not the Copy button in the key list.');
+  else if (key.length < 80) Logger.log('That looks too short for a full key (about 100 characters). It may be the shortened version from the key list.');
   Logger.log(JSON.stringify(suggestUseCases_('This Is Fine', 'A dog sits calmly in a burning room.'), null, 2));
 }
