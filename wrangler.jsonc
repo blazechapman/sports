@@ -1,0 +1,14 @@
+// Cloudflare Workers settings for the installed Meme Lab app (see app/README.md).
+// The Worker only serves the app's files from app/dist/; it has no code of its own.
+// `npx wrangler deploy` (Cloudflare's default deploy command) runs the build first.
+// The older D1-only version's settings are in cloudflare-d1.wrangler.toml.
+{
+  "name": "memelab",
+  "compatibility_date": "2026-09-01",
+  "build": {
+    "command": "npm run build:app"
+  },
+  "assets": {
+    "directory": "./app/dist"
+  }
+}

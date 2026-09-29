@@ -1,6 +1,5 @@
 // Builds the installed Meme Lab app for Cloudflare into app/dist/.
-//   Cloudflare build command:  npm run build:app
-//   Deploy command:            npx wrangler deploy --config app/wrangler.jsonc
+//   Runs from `npx wrangler deploy` (the build command in wrangler.jsonc), or by hand: npm run build:app
 // The page is the Apps Script page (apps-script/Index.html with its parts filled in) plus
 // app/engine.js, which answers google.script.run by calling the engine (apps-script/Api.gs).
 import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
