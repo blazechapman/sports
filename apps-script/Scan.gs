@@ -17,13 +17,21 @@ const SCAN_TZ = 'America/New_York';
 const SCAN_MAX_ENRICH = 12; // most games sent to Claude per scan
 const SCAN_CHUNK = 4; // games per Claude request; requests run in parallel
 
-/** Trigger handler (installed by setup). */
-function scheduledScan() {
+/**
+ * Trigger handler (installed by setup). Only runs for one of this project's own triggers, so it
+ * can't be set off from the page to spend Claude credit.
+ */
+function scheduledScan(e) {
+  const uid = e && e.triggerUid;
+  if (!uid || !ScriptApp.getProjectTriggers().some((t) => t.getUniqueId() === uid)) {
+    throw new Error('scheduledScan only runs from its schedule. Use runScanNow to scan from the editor.');
+  }
   console.log('scan ' + JSON.stringify(runScan_()));
 }
 
 /** Run from the editor to scan now and see the result in the log. Ignores the button's cooldown. */
 function runScanNow() {
+  ownerOnly_();
   Logger.log(JSON.stringify(runScan_(), null, 2));
 }
 

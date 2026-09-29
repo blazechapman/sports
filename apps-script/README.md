@@ -5,7 +5,8 @@ The whole Meme Lab as a Google web app: the same five tabs, your data in a Googl
 | File | Type | What it does |
 |---|---|---|
 | `appsscript.json` | Manifest (optional) | Time zone (Eastern), V8 runtime, web app settings |
-| `Code` | Script | Serves the page and the functions it calls |
+| `Code` | Script | Serves the page and the functions it calls (only to you) |
+| `Api` | Script | The front door for the installed Cloudflare app (see `app/README.md`); optional |
 | `Store` | Script | Saves templates and moments in the Google Sheet |
 | `Rules` | Script | Use cases, blowout margins, Cat Watch teams |
 | `Claude` | Script | Calls the Claude API (use-case suggestions) |
@@ -23,7 +24,7 @@ The whole Meme Lab as a Google web app: the same five tabs, your data in a Googl
 
 Click **+** next to **Files** and pick **Script** or **HTML**. Type the name exactly as shown, without an extension; the editor adds `.gs` or `.html`. Names are case-sensitive, and the order doesn't matter.
 
-- **Script:** `Code` (already exists; replace its contents), `Store`, `Rules`, `Claude`, `Scan`, `Setup`, `Seed`
+- **Script:** `Code` (already exists; replace its contents), `Store`, `Rules`, `Claude`, `Scan`, `Setup`, `Seed`, and `Api` if you'll use the Cloudflare app
 - **HTML:** `Index`, `Styles`, `DbClient`, `App`
 
 Paste each file's full contents from this folder, then save (Ctrl/Cmd+S).
@@ -72,7 +73,7 @@ Google picks the exact minute within each hour. You can see them under **Trigger
 
 ## Good to know
 
-- **Keep access on "Only myself".** The page can call any function whose name doesn't end in `_`, including `setup`.
+- **Keep this deployment on "Only myself".** For the Cloudflare app, make a second deployment set to "Anyone" (see `app/README.md`). Every function the page or editor can run checks that it's you, and the app's calls need the app key.
 - **The data sheet has one row per template or moment.** The `data` column holds the full record as JSON. Read it freely, but make edits in the app: a row with broken JSON is skipped.
 - **Free Google accounts have daily quotas:** 20,000 URL fetches and 90 minutes of trigger time. A scan uses about 11 fetches and usually well under a minute.
 - **ESPN's scoreboard feed is unofficial** and can change without notice. If a league's feed fails, the other leagues still scan, and the button shows "feed problem".

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#1E6B46"/>
+  <g id="mark">
+    <text x="256" y="232" text-anchor="middle" font-family="Arial Narrow, Arial, Helvetica, sans-serif" font-weight="900" font-size="148" letter-spacing="2" fill="#FFFFFF">MEME</text>
+    <rect x="100" y="262" width="312" height="150" rx="8" fill="#F2C200"/>
+    <text x="256" y="388" text-anchor="middle" font-family="Arial Narrow, Arial, Helvetica, sans-serif" font-weight="900" font-size="146" letter-spacing="2" fill="#1D1A00">LAB</text>
+  </g>
+</svg>

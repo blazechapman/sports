@@ -5,7 +5,8 @@ Web app version of the Meme Lab artifact (@sportsmemery): match a sports moment 
 Two ways to run it, sharing the same UI (`public/app.js`):
 
 - **Google Apps Script:** the page, a Google Sheet for data and Google's scheduled triggers. Setup guide: [`apps-script/README.md`](apps-script/README.md).
-- **Cloudflare:** Pages (static UI in `public/`) + Pages Functions (`functions/api/`) + D1 (SQLite). Setup below.
+  - **Installed app on Cloudflare** (like the Brackets app): the same page, hosted on Cloudflare Workers and talking to the Apps Script engine with a private key, so all data stays in the Sheet. Setup guide: [`app/README.md`](app/README.md).
+- **Cloudflare on its own** (separate data in D1): Pages (static UI in `public/`) + Pages Functions (`functions/api/`) + D1 (SQLite). Setup below.
 
 ## Layout
 
@@ -18,6 +19,7 @@ Two ways to run it, sharing the same UI (`public/app.js`):
 | `lib/scan.js`, `lib/rules.js` | The moment scan and the shared Meme Lab rules |
 | `worker/` | Scheduled Worker that runs the scan automatically |
 | `apps-script/` | The Apps Script version (see its README) |
+| `app/`, `scripts/build-app.mjs` | The installed app for Cloudflare that talks to the Apps Script engine (see `app/README.md`) |
 | `scripts/build-apps-script.mjs` | Regenerates `apps-script/Index.html`, `Styles.html`, `App.html` and `Seed.gs` from `public/` and `data/export/` |
 | `test/` | Offline tests for both versions (`npm test`) |
 | `functions/api/[[path]].js` | REST API: `GET/POST /api/:collection`, `GET/PUT/PATCH/DELETE /api/:collection/:id` (collections: `templates`, `moments`, `meta`) |

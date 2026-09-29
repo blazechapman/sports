@@ -3,6 +3,7 @@
  * It is safe to run again: existing data is kept and the triggers are replaced.
  */
 function setup() {
+  ownerOnly_();
   const props = PropertiesService.getScriptProperties();
   let ss = null;
   const id = props.getProperty('SPREADSHEET_ID');
@@ -52,6 +53,7 @@ function installScanTriggers_() {
 
 /** Turns the scheduled scans off (the button still works). */
 function removeScanTriggers() {
+  ownerOnly_();
   ScriptApp.getProjectTriggers()
     .filter((t) => t.getHandlerFunction() === 'scheduledScan')
     .forEach((t) => ScriptApp.deleteTrigger(t));

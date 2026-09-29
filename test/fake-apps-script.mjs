@@ -58,14 +58,24 @@ export const response = (status, body) => ({
 });
 
 /** Loads every .gs file (alphabetically, to catch load-order dependencies) into a fresh context. */
-export function loadProject({ http = () => response(404, "") } = {}) {
+export function loadProject({ http = () => response(404, ""), user = "me@example.com" } = {}) {
   const props = new Map();
   const spreadsheets = new Map();
   const triggers = [];
   const logs = [];
   const requests = [];
   const handle = (req) => { requests.push(req); return http(req); };
+  const session = { user };
+  let uidCount = 0;
   const ctx = {
+    Session: {
+      getActiveUser: () => ({ getEmail: () => session.user }),
+      getEffectiveUser: () => ({ getEmail: () => "me@example.com" }),
+    },
+    ContentService: {
+      MimeType: { JSON: "json" },
+      createTextOutput: (text) => ({ text, setMimeType() { return this; } }),
+    },
     console: { log() {}, warn() {}, error() {} },
     Logger: { log: (m) => logs.push(m) },
     PropertiesService: { getScriptProperties: () => ({ getProperty: (k) => props.get(k) ?? null, setProperty: (k, v) => props.set(k, v) }) },
@@ -98,7 +108,7 @@ export function loadProject({ http = () => response(404, "") } = {}) {
           onWeekDay: (d) => { spec.weekDay = d; return b; },
           atHour: (h) => { spec.hour = h; return b; },
           inTimezone: (tz) => { spec.tz = tz; return b; },
-          create: () => { const t = { spec, getHandlerFunction: () => fn }; triggers.push(t); return t; },
+          create: () => { const uid = "uid" + (++uidCount); const t = { spec, getHandlerFunction: () => fn, getUniqueId: () => uid }; triggers.push(t); return t; },
         };
         return b;
       },
@@ -108,5 +118,5 @@ export function loadProject({ http = () => response(404, "") } = {}) {
   for (const f of readdirSync(DIR).filter((f) => f.endsWith(".gs")).sort()) {
     vm.runInContext(readFileSync(DIR + f, "utf8"), ctx, { filename: f });
   }
-  return { ctx, props, spreadsheets, triggers, logs, requests, run: (code) => vm.runInContext(code, ctx) };
+  return { ctx, props, spreadsheets, triggers, logs, requests, session, run: (code) => vm.runInContext(code, ctx) };
 }

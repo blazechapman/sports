@@ -192,3 +192,39 @@ test("generated Apps Script files match the shared sources", () => {
   const css = readFileSync(new URL("../public/styles.css", import.meta.url), "utf8");
   assert.ok(readFileSync(new URL("../apps-script/Styles.html", import.meta.url), "utf8").includes(css), "apps-script/Styles.html is stale");
 });
+
+const post = (p, body) => JSON.parse(p.ctx.doPost({ postData: { contents: JSON.stringify(body) } }).text);
+
+test("app front door: needs the key, allows only listed calls", () => {
+  const p = loadProject();
+  p.ctx.setup();
+  assert.equal(post(p, { key: "x", fn: "ping" }).code, "nokey");
+  const key = p.ctx.makeAppKey();
+  assert.equal(key.length, 64);
+  assert.equal(post(p, { key: "wrong", fn: "apiSnapshot" }).code, "badkey");
+  assert.deepEqual(post(p, { key, fn: "ping" }), { ok: true, result: { ok: true } });
+  assert.equal(post(p, { key, fn: "apiSnapshot" }).result.templates.length, 15);
+  assert.match(post(p, { key, fn: "makeAppKey" }).error, /Unknown call/);
+  assert.match(post(p, { key, fn: "setup" }).error, /Unknown call/);
+  const added = post(p, { key, fn: "apiAdd", args: ["templates", { name: "From the app" }] });
+  assert.ok(added.ok);
+  assert.equal(post(p, { key, fn: "apiUpdate", args: ["templates", "nope", {}] }).ok, false);
+
+  // A stranger (no Google sign-in) calling through the app works with the key...
+  p.session.user = "";
+  assert.equal(post(p, { key, fn: "apiSnapshot" }).result.templates.length, 16);
+  // ...but can't use the page's functions or the editor ones without it.
+  assert.throws(() => p.ctx.apiSnapshot(), /Only the owner/);
+  assert.throws(() => p.ctx.makeAppKey(), /Only the owner/);
+  assert.throws(() => p.ctx.setup(), /Only the owner/);
+  assert.throws(() => p.ctx.include("Seed"), /Unknown page part/);
+  assert.throws(() => p.ctx.scheduledScan({ triggerUid: "guess" }), /only runs from its schedule/);
+  assert.throws(() => p.ctx.scheduledScan(), /only runs from its schedule/);
+});
+
+test("scheduledScan runs for its own trigger", () => {
+  const p = loadProject({ http: () => response(200, { events: [] }) });
+  p.ctx.setup();
+  p.session.user = "";
+  assert.doesNotThrow(() => p.ctx.scheduledScan({ triggerUid: p.triggers[0].getUniqueId() }));
+});

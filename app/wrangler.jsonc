@@ -1,0 +1,9 @@
+// Cloudflare Workers settings for the installed Meme Lab app (see app/README.md).
+// The Worker only serves the app's files from app/dist/ (built by `npm run build:app`); it has no code of its own.
+{
+  "name": "memelab",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./dist"
+  }
+}

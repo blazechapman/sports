@@ -100,6 +100,7 @@ function suggestUseCases_(name, how) {
 
 /** Run from the editor to check the API key: prints a suggestion to the log. */
 function testClaude() {
+  ownerOnly_();
   const key = claudeKey_();
   if (!key) {
     Logger.log('No ANTHROPIC_API_KEY in Script Properties.');
