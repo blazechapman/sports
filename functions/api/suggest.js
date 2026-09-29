@@ -40,7 +40,9 @@ export async function onRequestPost({ request, env }) {
       messages: [{ role: "user", content: `Template: ${String(name).slice(0, 200)}\nHow it works: ${String(how).slice(0, 2000)}` }],
     });
     if (response.stop_reason === "refusal") return json({ error: "refusal" }, 422);
-    const text = response.content.find((b) => b.type === "text")?.text;
+    // With a server-side fallback, the answer is the text after the last fallback block.
+    const after = response.content.slice(response.content.map((b) => b.type).lastIndexOf("fallback") + 1);
+    const text = after.filter((b) => b.type === "text").map((b) => b.text).join("");
     const out = JSON.parse(text);
     out.useCases = [...new Set(out.useCases.filter((u) => u in USE_CASES))];
     return json(out);

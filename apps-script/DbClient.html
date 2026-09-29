@@ -1,0 +1,78 @@
+<script>
+/* Apps Script version of the page's data layer: the same `db` and `api` interface as
+   public/db.js, backed by google.script.run and the Sheets store. Polls every 20s while
+   the page is visible and only re-renders when data changed. */
+function gsRun(fn, ...args) {
+  return new Promise((resolve, reject) =>
+    google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)[fn](...args));
+}
+function unwrap(res) {
+  if (res && res.error) throw Object.assign(new Error(res.error), { code: res.error, at: res.at });
+  return res;
+}
+const api = {
+  suggest: body => gsRun("apiSuggest", body).then(unwrap),
+  scan: () => gsRun("apiScan").then(unwrap),
+};
+function createDb() {
+  const POLL_MS = 20000, listeners = new Set();
+  let cache = null, inflight = null;
+  function refresh() {
+    if (inflight) return inflight;
+    inflight = gsRun("apiSnapshot").then(
+      snap => { cache = snap; inflight = null; listeners.forEach(l => l.emit()); },
+      err => { inflight = null; listeners.forEach(l => l.fail(err)); });
+    return inflight;
+  }
+  setInterval(() => { if (!document.hidden) refresh(); }, POLL_MS);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(); });
+
+  // select(cache) returns raw rows; the listener fires only when they change.
+  function listen(select, toSnap, cb, errCb) {
+    let last = null;
+    const l = {
+      emit() { const rows = select(cache); const key = JSON.stringify(rows); if (key !== last) { last = key; cb(toSnap(rows)); } },
+      fail(e) { if (errCb) errCb(e); },
+    };
+    listeners.add(l);
+    if (cache) l.emit(); else refresh();
+    return () => listeners.delete(l);
+  }
+  async function write(p) { const out = await p; await refresh(); return out; }
+  const snapDoc = d => ({ id: d.id, exists: true, data: () => d.data });
+  function docRef(col, id) {
+    return {
+      id,
+      update: data => write(gsRun("apiUpdate", col, id, data)),
+      set: data => write(gsRun("apiSet", col, id, data)),
+      delete: () => write(gsRun("apiDelete", col, id)),
+      onSnapshot: (cb, errCb) => listen(
+        c => (c[col] || []).find(d => d.id === id) || null,
+        d => d ? snapDoc(d) : { id, exists: false, data: () => undefined }, cb, errCb),
+    };
+  }
+  function query(col, opts = {}) {
+    const select = c => {
+      let rows = (c[col] || []).slice();
+      if (opts.orderBy) {
+        const f = opts.orderBy, sign = opts.dir === "desc" ? -1 : 1;
+        rows.sort((a, b) => { const x = a.data[f], y = b.data[f]; return (x == null ? -1 : y == null ? 1 : x < y ? -1 : x > y ? 1 : 0) * sign; });
+      }
+      return opts.limit ? rows.slice(0, opts.limit) : rows;
+    };
+    return {
+      orderBy: (f, dir = "asc") => query(col, { ...opts, orderBy: f, dir }),
+      limit: n => query(col, { ...opts, limit: n }),
+      onSnapshot: (cb, errCb) => listen(select, rows => ({ docs: rows.map(snapDoc) }), cb, errCb),
+    };
+  }
+  return {
+    collection: col => ({
+      ...query(col),
+      add: data => write(gsRun("apiAdd", col, data)).then(r => docRef(col, r.id)),
+      doc: id => docRef(col, id),
+    }),
+    doc: path => { const [col, id] = path.split("/"); return docRef(col, id); },
+  };
+}
+</script>

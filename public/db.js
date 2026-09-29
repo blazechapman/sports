@@ -1,5 +1,14 @@
-/* Minimal Firestore-style client over the /api REST endpoints (Cloudflare D1).
-   Mirrors the subset of the artifact `db` API that app.js uses. Live updates are polled. */
+/* Cloudflare version of the page's data layer: a minimal Firestore-style client over the
+   /api REST endpoints (D1), mirroring the subset of the artifact `db` API that app.js uses,
+   plus `api` for the server actions. Live updates are polled.
+   apps-script/DbClient.html provides the same interface for the Apps Script version. */
+async function postJson(path,body){
+  const r=await fetch("/api/"+path,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body||{})});
+  const res=await r.json().catch(()=>({error:String(r.status)}));
+  if(!r.ok||res.error)throw Object.assign(new Error(res.error||r.statusText),{code:res.error,at:res.at});
+  return res;
+}
+const api={suggest:body=>postJson("suggest",body),scan:()=>postJson("scan")};
 function createDb(){
   const POLL_MS=15000, listeners=new Set();
   async function req(method,path,body){
@@ -9,7 +18,8 @@ function createDb(){
   }
   const refreshAll=()=>listeners.forEach(l=>l());
   function listen(fetchFn,cb,errCb){
-    const run=()=>fetchFn().then(cb,e=>errCb&&errCb(e));
+    let last=null;
+    const run=()=>fetchFn().then(snap=>{const key=JSON.stringify(snap.docs?snap.docs.map(d=>[d.id,d.data()]):[snap.exists,snap.data()]);if(key!==last){last=key;cb(snap);}},e=>errCb&&errCb(e));
     listeners.add(run);run();
     const t=setInterval(run,POLL_MS);
     return ()=>{clearInterval(t);listeners.delete(run);};

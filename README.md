@@ -2,25 +2,30 @@
 
 Web app version of the Meme Lab artifact (@sportsmemery): match a sports moment to the right meme template, then queue it.
 
-**Stack:** Cloudflare Pages (static UI in `public/`) + Pages Functions (`functions/api/`) + D1 (SQLite).
+Two ways to run it, sharing the same UI (`public/app.js`):
+
+- **Google Apps Script:** the page, a Google Sheet for data and Google's scheduled triggers. Setup guide: [`apps-script/README.md`](apps-script/README.md).
+- **Cloudflare:** Pages (static UI in `public/`) + Pages Functions (`functions/api/`) + D1 (SQLite). Setup below.
 
 ## Layout
 
 | Path | What |
 |---|---|
 | `public/index.html`, `styles.css`, `app.js` | UI ported from the artifact (Today, Match, Library, Add, Use cases tabs) |
-| `public/db.js` | Small Firestore-style client over `/api`, so `app.js` stays close to the artifact code. Polls every 15s for updates. |
+| `public/db.js` | Cloudflare data layer: a small Firestore-style client over `/api` plus `api.suggest` / `api.scan`, so `app.js` stays close to the artifact code. Polls every 15s. |
 | `functions/api/suggest.js` | `POST /api/suggest`: asks Claude (Opus 5.5, low effort, JSON-schema output) to tag a template with use cases, format and tone |
 | `functions/api/scan.js` | `POST /api/scan`: the "Check for new moments" button (once per 10 min) |
 | `lib/scan.js`, `lib/rules.js` | The moment scan and the shared Meme Lab rules |
 | `worker/` | Scheduled Worker that runs the scan automatically |
-| `test/` | Offline tests for the scan (`npm test`) |
+| `apps-script/` | The Apps Script version (see its README) |
+| `scripts/build-apps-script.mjs` | Regenerates `apps-script/Index.html`, `Styles.html`, `App.html` and `Seed.gs` from `public/` and `data/export/` |
+| `test/` | Offline tests for both versions (`npm test`) |
 | `functions/api/[[path]].js` | REST API: `GET/POST /api/:collection`, `GET/PUT/PATCH/DELETE /api/:collection/:id` (collections: `templates`, `moments`, `meta`) |
 | `migrations/` | D1 schema (one `docs` table holding JSON documents) |
 | `data/export/` | Templates and moments exported from the artifact on 2026-09-28 |
 | `scripts/build-seed.mjs` | Turns `data/export/` into `data/seed.sql` |
 
-## Run locally
+## Cloudflare: run locally
 
 ```sh
 npm install
@@ -30,7 +35,7 @@ echo 'ANTHROPIC_API_KEY=sk-ant-...' > .dev.vars   # optional: enables Claude sug
 npm run dev            # http://localhost:8788
 ```
 
-## Deploy to Cloudflare
+## Cloudflare: deploy
 
 ```sh
 npx wrangler login
@@ -48,7 +53,7 @@ npm run deploy:scan
 
 If the D1 binding isn't picked up from `wrangler.toml`, add it in the dashboard: Pages → Settings → Bindings → D1, variable `DB`.
 
-**The API has no auth.** Put the site behind Cloudflare Access (Zero Trust → Access → Applications) before you share the URL.
+**The Cloudflare API has no auth.** Put the site behind Cloudflare Access (Zero Trust → Access → Applications) before you share the URL.
 
 ## Claude suggestions
 
