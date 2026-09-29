@@ -22,12 +22,12 @@ The same Meme Lab as `apps-script/`, installed like a real app on iPhone, iPad, 
 1. Sign in at dash.cloudflare.com.
 2. **Compute → Workers & Pages → Create application → Import a repository.** Connect GitHub and give Cloudflare access to **only** the `sports` repo.
 3. Set up the application:
-   - Project name: `memelab` (it has to match `name` in `wrangler.jsonc`)
+   - Project name: `sports` (it has to match `name` in `wrangler.jsonc`)
    - Production branch: `claude/bold-wozniak-0wbuyq` (or `main` once this is merged)
    - Build command: leave empty
    - Deploy command: `npx wrangler deploy` (already filled in; it builds the app first, via `wrangler.jsonc`)
    - Enable Preview builds: off
-4. **Deploy.** After a minute the app is at `memelab.<your subdomain>.workers.dev`.
+4. **Deploy.** After a minute the app is at `sports.<your subdomain>.workers.dev`.
 5. Your subdomain is the same one your Brackets app uses. To make the address less obvious, rename the subdomain under **Workers & Pages → Account details → Subdomain**. That changes the Brackets address too.
 
 ### 3. Each device
