@@ -26,6 +26,7 @@ Notes from the user after the first real use (2026-09-29). Start the next sessio
    - show a countdown on each card ("expires in 5h"), so it's clear what's about to go
    - run the cleanup in the scheduled scan (`apps-script/Scan.gs`), and mark expired moments with their own status (such as `expired`) instead of `dismissed`, so they can be told apart and restored
    - never auto-dismiss something already queued
+6. **Always prioritize Fresh templates unless a Classic is truly the best fit.** Today the ranking gives Fresh only +1, against +3 per matching use case (`scoreTemplate` in `public/app.js`; the scan and Claude prompts should follow the same rule). Change it so a Fresh template that fits the moment always ranks above a Classic, and a Classic only comes first when it clearly fits better (for example it matches clearly more of the moment's use cases, or it's the signature meme for that situation, like Chubbs for Gator Watch). Show the reason on the card ("Classic: best fit for …") when a Classic wins.
 
 ## Also pending
 - The artifact's old scan Routine (`trig_01X3UnRSzVMWYpWz4czfaApb`) still writes moments into the artifact. Turn it off once the Sheet's own scans are confirmed.
