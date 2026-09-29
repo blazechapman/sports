@@ -4,7 +4,7 @@ The whole Meme Lab as a Google web app: the same five tabs, your data in a Googl
 
 | File | Type | What it does |
 |---|---|---|
-| `appsscript.json` | Manifest | Time zone (Eastern), V8 runtime, web app settings |
+| `appsscript.json` | Manifest (optional) | Time zone (Eastern), V8 runtime, web app settings |
 | `Code` | Script | Serves the page and the functions it calls |
 | `Store` | Script | Saves templates and moments in the Google Sheet |
 | `Rules` | Script | Use cases, blowout margins, Cat Watch teams |
@@ -17,8 +17,7 @@ The whole Meme Lab as a Google web app: the same five tabs, your data in a Googl
 ## 1. Create the project
 
 1. Go to [script.google.com](https://script.google.com) and click **New project**. Rename it **Meme Lab** (click "Untitled project").
-2. Open **Project Settings** (gear icon, left side) and tick **Show "appsscript.json" manifest file in editor**.
-3. Back in the **Editor** (`< >` icon), open `appsscript.json` and replace everything in it with this folder's `appsscript.json`.
+2. That's it. `appsscript.json` is optional: the code uses Eastern time on its own, and you pick the web app settings when you deploy (step 5). If your editor offers **Project Settings → Show "appsscript.json" manifest file in editor**, you can paste this folder's copy, but you don't need to.
 
 ## 2. Add the files
 
