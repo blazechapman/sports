@@ -20,6 +20,11 @@ Notes from the user after the first real use (2026-09-29). Start the next sessio
    - Keep the template's rule: the joke stays off the window fall.
    - The library has two Chubbs entries. Use the active one, "Chubs Open Present and It's a Gator Head" (id `ftk57j047c1o6unz569w`, tagged blowout and meltdown). The other, "Chubbs Gets the Gator Head (Happy Gilmore)" (`chubbs-gator-head`), is a retired duplicate, but its "how it works" notes above are the fuller write-up, so copy them onto the active one.
    - Add `gator_watch` to the use-case lists in `public/app.js`, `apps-script/Rules.gs` and `lib/rules.js`, and check the ESPN names ("Florida" / "Florida Gators") in the scan.
+5. **Meme Timer: auto-dismiss stale moments.** A moment on the Today tab that you don't act on (queue, open in matcher, or dismiss) should dismiss itself once its window has passed, so the list only shows what's still postable. Ideas to confirm with the user:
+   - how long: a fixed time (for example 24 or 48 hours), or tied to urgency (a "Post today" moment expires at the end of its post date, a batch or Meme of the Week candidate lasts longer)
+   - show a countdown on each card ("expires in 5h"), so it's clear what's about to go
+   - run the cleanup in the scheduled scan (`apps-script/Scan.gs`), and mark expired moments with their own status (such as `expired`) instead of `dismissed`, so they can be told apart and restored
+   - never auto-dismiss something already queued
 
 ## Also pending
 - The artifact's old scan Routine (`trig_01X3UnRSzVMWYpWz4czfaApb`) still writes moments into the artifact. Turn it off once the Sheet's own scans are confirmed.
