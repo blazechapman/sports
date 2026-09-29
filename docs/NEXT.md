@@ -18,7 +18,7 @@ Notes from the user after the first real use (2026-09-29). Start the next sessio
    - **Florida loses** (the dead gator is the trophy): the winner's logo goes on Chubbs.
    - **Florida wins big:** the "trauma" flip ("Ole Miss, 10 years from now" + gator head reveal).
    - Keep the template's rule: the joke stays off the window fall.
-   - Note: that template is currently marked **retired** in the library (it was used on 2026-09-27), so it won't be suggested until it's restored. Ask whether Gator Watch should bring it back automatically for Gator games.
+   - The library has two Chubbs entries. Use the active one, "Chubs Open Present and It's a Gator Head" (id `ftk57j047c1o6unz569w`, tagged blowout and meltdown). The other, "Chubbs Gets the Gator Head (Happy Gilmore)" (`chubbs-gator-head`), is a retired duplicate, but its "how it works" notes above are the fuller write-up, so copy them onto the active one.
    - Add `gator_watch` to the use-case lists in `public/app.js`, `apps-script/Rules.gs` and `lib/rules.js`, and check the ESPN names ("Florida" / "Florida Gators") in the scan.
 
 ## Also pending
