@@ -3,6 +3,7 @@
 The same Meme Lab as `apps-script/`, installed like a real app on iPhone, iPad, Mac and PC: its own icon, full-screen, no browser bar. It's hosted on Cloudflare (Workers) straight from this repo, and it talks to your Apps Script "engine" with a private key. Your data stays in your Google Sheet, so a change made in the app or in Apps Script shows up in both.
 
 - The page is the Apps Script page (`apps-script/Index.html` and its parts). `npm run build:app` (run automatically by `npx wrangler deploy`) copies it into `app/dist/` with `app/engine.js` (the connection), the icons, the app manifest, the offline shell (`sw.js`) and privacy headers.
+- The Worker (`app/worker.js`) serves those files and relays ESPN scoreboards for the scan.
 - The engine's front door is `apps-script/Api.gs`. It only answers with your key, and only the app's own calls.
 - The engine's address and key are stored on each device, never in this repo.
 - Search engines are told to stay away (`robots.txt`, `X-Robots-Tag`), and the page can't be framed by other sites.
@@ -28,7 +29,8 @@ The same Meme Lab as `apps-script/`, installed like a real app on iPhone, iPad, 
    - Deploy command: `npx wrangler deploy` (already filled in; it builds the app first, via `wrangler.jsonc`)
    - Enable Preview builds: off
 4. **Deploy.** After a minute the app is at `sports.<your subdomain>.workers.dev`.
-5. Your subdomain is the same one your Brackets app uses. To make the address less obvious, rename the subdomain under **Workers & Pages → Account details → Subdomain**. That changes the Brackets address too.
+5. **ESPN relay:** ESPN refuses requests from Google's servers, so the scan fetches scoreboards through this app (`app/worker.js` only relays the five scoreboards the scan uses). In Apps Script, add the Script property `ESPN_RELAY` = the app's address, for example `https://sports.<your subdomain>.workers.dev`.
+6. Your subdomain is the same one your Brackets app uses. To make the address less obvious, rename the subdomain under **Workers & Pages → Account details → Subdomain**. That changes the Brackets address too.
 
 ### 3. Each device
 - **Computer:** open the app's address, paste the engine link and key, **Connect**. Then install it: in Chrome/Edge, use the install icon in the address bar; in Safari on Mac, use **File → Add to Dock**.

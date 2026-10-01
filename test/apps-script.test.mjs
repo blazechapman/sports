@@ -228,3 +228,13 @@ test("scheduledScan runs for its own trigger", () => {
   p.session.user = "";
   assert.doesNotThrow(() => p.ctx.scheduledScan({ triggerUid: p.triggers[0].getUniqueId() }));
 });
+
+test("scan goes through the ESPN relay when ESPN_RELAY is set", () => {
+  const p = loadProject({ http: () => response(200, { events: [] }) });
+  p.ctx.setup();
+  p.props.set("ESPN_RELAY", "https://sports.me.workers.dev/ ");
+  p.run("runScan_({ now: new Date('2026-09-28T16:00:00Z') })");
+  const urls = p.requests.map((r) => r.url);
+  assert.ok(urls.includes("https://sports.me.workers.dev/espn/football/college-football/scoreboard?dates=20260928&limit=300&groups=80"));
+  assert.ok(urls.every((u) => u.startsWith("https://sports.me.workers.dev/espn/")));
+});

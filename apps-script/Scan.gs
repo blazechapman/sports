@@ -35,9 +35,16 @@ function runScanNow() {
   Logger.log(JSON.stringify(runScan_(), null, 2));
 }
 
+/**
+ * ESPN refuses requests from Google's servers (403), so the scan goes through the Meme Lab app on
+ * Cloudflare when Script Properties has ESPN_RELAY set to the app's address
+ * (for example https://sports.yourname.workers.dev). Without it, ESPN is called directly.
+ */
 function scoreboardUrl_(league, ymd) {
   let q = 'dates=' + ymd.replace(/-/g, '') + '&limit=300';
   if (league === 'CFB') q += '&groups=80'; // FBS only
+  const relay = (PropertiesService.getScriptProperties().getProperty('ESPN_RELAY') || '').trim().replace(/\/+$/, '');
+  if (relay) return relay + '/espn/' + SCAN_FEEDS[league] + '/scoreboard?' + q;
   return 'https://site.api.espn.com/apis/site/v2/sports/' + SCAN_FEEDS[league] + '/scoreboard?' + q;
 }
 
@@ -194,7 +201,7 @@ function runScan_(opts) {
   feeds.forEach((r, i) => {
     const j = jobs[i];
     if (r.status !== 200) {
-      errors.push(j.league + ' feed ' + (r.error || r.status));
+      errors.push(j.league + ' feed ' + (r.error || r.status) + (r.status === 403 && !PropertiesService.getScriptProperties().getProperty('ESPN_RELAY') ? ' (ESPN blocks Google: set ESPN_RELAY)' : ''));
       return;
     }
     const body = parseData_(r.text);

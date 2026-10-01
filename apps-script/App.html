@@ -260,7 +260,7 @@ $("refreshBtn").addEventListener("click",async()=>{
     const res=await api.scan();
     lastRefresh=new Date().toISOString();refreshLabel();
     toast(res.added?`${res.added} new moment${res.added>1?"s":""}`:"No new moments");
-    if(res.errors&&res.errors.length)$("refreshNote").textContent+=` · ${res.errors.length} feed problem${res.errors.length>1?"s":""}`;
+    if(res.errors&&res.errors.length)$("refreshNote").textContent+=` · ${res.errors.length} problem${res.errors.length>1?"s":""}: ${res.errors[0]}`;
   }catch(e){
     if(e.code==="cooldown"){lastRefresh=e.at;refreshLabel();toast("Checked less than 10 minutes ago");return;}
     btn.disabled=false;$("refreshNote").textContent="Couldn't run the check ("+(e.message||"error")+"). Try again in a minute.";}
