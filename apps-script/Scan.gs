@@ -1,8 +1,11 @@
 /**
- * Moment scan: pulls finished games from ESPN's public scoreboards (free), flags meme-worthy
- * ones with the Meme Lab rules (free), then asks Claude to write headlines, concepts and
- * captions and apply the off-limits filter for the new ones. Runs on the triggers setup()
- * installs and from the "Check for new moments" button.
+ * Moment scan: flags meme-worthy games in ESPN's scoreboards with the Meme Lab rules (free),
+ * then asks Claude to write headlines, concepts and captions and apply the off-limits filter for
+ * the new ones.
+ *
+ * ESPN refuses requests from Google's and Cloudflare's servers, so the page fetches the
+ * scoreboards on your own device and sends the finished games here (apiScan). It does that when
+ * you open the app (at most every few hours) and when you press "Check for new moments".
  */
 
 const SCAN_FEEDS = {
@@ -18,8 +21,9 @@ const SCAN_MAX_ENRICH = 12; // most games sent to Claude per scan
 const SCAN_CHUNK = 4; // games per Claude request; requests run in parallel
 
 /**
- * Trigger handler (installed by setup). Only runs for one of this project's own triggers, so it
- * can't be set off from the page to spend Claude credit.
+ * Handler for a time-driven trigger, kept for a future scores source that allows servers
+ * (setup no longer installs any: ESPN blocks Google). Only runs for one of this project's own
+ * triggers, so it can't be set off from the page to spend Claude credit.
  */
 function scheduledScan(e) {
   const uid = e && e.triggerUid;
@@ -29,22 +33,18 @@ function scheduledScan(e) {
   console.log('scan ' + JSON.stringify(runScan_()));
 }
 
-/** Run from the editor to scan now and see the result in the log. Ignores the button's cooldown. */
+/**
+ * Run from the editor to scan from Google's servers and see the result in the log. ESPN blocks
+ * Google, so expect "feed 403"; the app's own scan (on your device) is the one that works.
+ */
 function runScanNow() {
   ownerOnly_();
   Logger.log(JSON.stringify(runScan_(), null, 2));
 }
 
-/**
- * ESPN refuses requests from Google's servers (403), so the scan goes through the Meme Lab app on
- * Cloudflare when Script Properties has ESPN_RELAY set to the app's address
- * (for example https://sports.yourname.workers.dev). Without it, ESPN is called directly.
- */
 function scoreboardUrl_(league, ymd) {
   let q = 'dates=' + ymd.replace(/-/g, '') + '&limit=300';
   if (league === 'CFB') q += '&groups=80'; // FBS only
-  const relay = (PropertiesService.getScriptProperties().getProperty('ESPN_RELAY') || '').trim().replace(/\/+$/, '');
-  if (relay) return relay + '/espn/' + SCAN_FEEDS[league] + '/scoreboard?' + q;
   return 'https://site.api.espn.com/apis/site/v2/sports/' + SCAN_FEEDS[league] + '/scoreboard?' + q;
 }
 
@@ -186,33 +186,51 @@ function enrich_(key, candidates, errors) {
   return out;
 }
 
-/** Runs a scan and saves new moments. Returns a summary. */
+/**
+ * Fetches the scoreboards from here (Google's servers) as [{ league, day, events } or
+ * { league, day, error }]. ESPN currently answers 403, so this only serves runScanNow and triggers.
+ */
+function fetchFeeds_(days) {
+  const jobs = [];
+  Object.keys(SCAN_FEEDS).forEach((league) => days.forEach((day) => jobs.push({ league: league, day: day })));
+  const replies = fetchAllSafe_(jobs.map((j) => ({ url: scoreboardUrl_(j.league, j.day), muteHttpExceptions: true, headers: { accept: 'application/json' } })), true);
+  return replies.map((r, i) => {
+    const j = jobs[i];
+    if (r.status !== 200) {
+      // A few words of the reply show who refused.
+      const said = String(r.text || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80);
+      return { league: j.league, day: j.day, error: (r.error || r.status) + (said ? ' "' + said + '"' : '') };
+    }
+    const body = parseData_(r.text);
+    return body ? { league: j.league, day: j.day, events: body.events || [] } : { league: j.league, day: j.day, error: 'unreadable' };
+  });
+}
+
+/** Scoreboards sent by the page, checked: known leagues, real dates, events as lists. */
+function cleanFeeds_(feeds) {
+  return (Array.isArray(feeds) ? feeds : [])
+    .filter((f) => f && Object.prototype.hasOwnProperty.call(SCAN_FEEDS, f.league) && /^\d{4}-\d{2}-\d{2}$/.test(String(f.day)))
+    .map((f) => Array.isArray(f.events)
+      ? { league: f.league, day: f.day, events: f.events }
+      : { league: f.league, day: f.day, error: String(f.error || 'no scoreboard').slice(0, 200) });
+}
+
+/** Runs a scan and saves new moments. opts.feeds: scoreboards from the page. Returns a summary. */
 function runScan_(opts) {
   const now = (opts && opts.now) || new Date();
   const today = Utilities.formatDate(now, SCAN_TZ, 'yyyy-MM-dd');
   const yesterday = Utilities.formatDate(new Date(now.getTime() - 864e5), SCAN_TZ, 'yyyy-MM-dd');
 
-  const jobs = [];
-  Object.keys(SCAN_FEEDS).forEach((league) => [yesterday, today].forEach((day) => jobs.push({ league: league, day: day })));
-  const feeds = fetchAllSafe_(jobs.map((j) => ({ url: scoreboardUrl_(j.league, j.day), muteHttpExceptions: true, headers: { accept: 'application/json' } })), true);
-
+  const feeds = opts && opts.feeds ? cleanFeeds_(opts.feeds) : fetchFeeds_([yesterday, today]);
   const candidates = [];
   const errors = [];
-  feeds.forEach((r, i) => {
-    const j = jobs[i];
-    if (r.status !== 200) {
-      // A few words of the reply show who refused (ESPN, Cloudflare or Google).
-      const said = String(r.text || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80);
-      errors.push(j.league + ' feed ' + (r.error || r.status) + (said ? ' "' + said + '"' : '') + (r.status === 403 && !PropertiesService.getScriptProperties().getProperty('ESPN_RELAY') ? ' (ESPN blocks Google: set ESPN_RELAY)' : ''));
+  feeds.forEach((f) => {
+    if (f.error) {
+      errors.push(f.league + ' feed ' + f.error);
       return;
     }
-    const body = parseData_(r.text);
-    if (!body) {
-      errors.push(j.league + ' feed unreadable');
-      return;
-    }
-    (body.events || []).forEach((ev) => {
-      const c = evaluateGame_(ev, j.league, j.day);
+    f.events.forEach((ev) => {
+      const c = evaluateGame_(ev, f.league, f.day);
       if (c) candidates.push(c);
     });
   });

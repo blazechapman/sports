@@ -18,18 +18,16 @@ test("setup creates the data sheet, loads the artifact data and schedules scans"
   assert.equal(snap.moments.length, 26);
   assert.ok(snap.moments[0].data.createdAt >= snap.moments[25].data.createdAt, "moments newest first");
   assert.equal(ss.getSheetByName("templates").grid.find((r) => r[0] === "drake")[1], "Drake Hotline Bling");
-  assert.deepEqual(p.triggers.map((t) => t.spec), [
-    { fn: "scheduledScan", everyDays: 1, hour: 8, tz: "America/New_York" },
-    { fn: "scheduledScan", weekDay: "SATURDAY", hour: 23, tz: "America/New_York" },
-    { fn: "scheduledScan", weekDay: "SUNDAY", hour: 23, tz: "America/New_York" },
-  ]);
+  // ESPN blocks Google's servers, so no scheduled scans (and an older setup's are removed).
+  assert.equal(p.triggers.length, 0);
   assert.match(p.logs.join("\n"), /No ANTHROPIC_API_KEY yet/);
 
   // Running it again keeps data and doesn't pile up triggers.
   p.ctx.apiAdd("templates", { name: "New one" });
+  p.ctx.ScriptApp.newTrigger("scheduledScan").timeBased().everyDays(1).atHour(8).create();
   p.ctx.setup();
   assert.equal(p.ctx.apiSnapshot().templates.length, 16);
-  assert.equal(p.triggers.length, 3);
+  assert.equal(p.triggers.length, 0);
   assert.match(p.logs.join("\n"), /Existing data kept/);
 });
 
@@ -226,15 +224,32 @@ test("scheduledScan runs for its own trigger", () => {
   const p = loadProject({ http: () => response(200, { events: [] }) });
   p.ctx.setup();
   p.session.user = "";
-  assert.doesNotThrow(() => p.ctx.scheduledScan({ triggerUid: p.triggers[0].getUniqueId() }));
+  const t = p.ctx.ScriptApp.newTrigger("scheduledScan").timeBased().everyDays(1).atHour(8).create();
+  assert.doesNotThrow(() => p.ctx.scheduledScan({ triggerUid: t.getUniqueId() }));
 });
 
-test("scan goes through the ESPN relay when ESPN_RELAY is set", () => {
-  const p = loadProject({ http: () => response(200, { events: [] }) });
+test("scan from scoreboards sent by the page (ESPN blocks Google, so the device fetches them)", () => {
+  const p = loadProject({ http: (req) => { throw new Error("no server fetch expected: " + req.url); } });
   p.ctx.setup();
-  p.props.set("ESPN_RELAY", "https://sports.me.workers.dev/ ");
-  p.run("runScan_({ now: new Date('2026-09-28T16:00:00Z') })");
-  const urls = p.requests.map((r) => r.url);
-  assert.ok(urls.includes("https://sports.me.workers.dev/espn/football/college-football/scoreboard?dates=20260928&limit=300&groups=80"));
-  assert.ok(urls.every((u) => u.startsWith("https://sports.me.workers.dev/espn/")));
+  const feeds = [
+    { league: "NFL", day: "2026-09-28", events: [game(team("Chiefs", "Kansas City", 41, null), team("Dolphins", "Miami", 10, null))] },
+    { league: "NHL", day: "2026-09-28", error: "couldn't reach ESPN from this device" },
+    { league: "XFL", day: "2026-09-28", events: [game(team("A", "A", 50, null), team("B", "B", 0, null))] }, // unknown league: ignored
+    { league: "MLB", day: "not-a-date", events: [] },
+  ];
+  const r = plain(p.ctx.apiScan(feeds));
+  assert.deepEqual(r, { checked: 1, added: 1, enriched: 0, errors: ["NHL feed couldn't reach ESPN from this device"] });
+  assert.ok(p.ctx.snapshot_().moments.some((m) => m.id === "2026-09-28-nfl-chiefs-dolphins"));
+  assert.equal(p.ctx.apiScan(feeds).error, "cooldown");
+});
+
+test("the app's front door passes the page's scoreboards to the scan", () => {
+  const p = loadProject();
+  p.ctx.setup();
+  const key = p.ctx.makeAppKey();
+  p.session.user = "";
+  const feeds = [{ league: "CFB", day: "2026-09-27", events: [game(team("Tigers", "LSU", 42, 12), team("Aggies", "Texas A&M", 10, 20))] }];
+  const out = post(p, { key, fn: "apiScan", args: [feeds] });
+  assert.ok(out.ok, out.error);
+  assert.equal(out.result.checked, 1);
 });

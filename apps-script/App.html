@@ -246,25 +246,61 @@ function renderInbox(){
 }
 $("t-show").addEventListener("input",renderInbox);
 
-/* refresh: runs the moment scan now via /api/scan */
-let lastRefresh=null;
+/* moment scan: ESPN refuses Google's and Cloudflare's servers, so this device fetches yesterday's and
+   today's scoreboards and sends the finished games to the engine, which flags them and saves moments */
+const ESPN_FEEDS={NFL:"football/nfl",CFB:"football/college-football",MLB:"baseball/mlb",NBA:"basketball/nba",NHL:"hockey/nhl"};
+const AUTO_SCAN_HOURS=3;
+function etDay(d){return new Intl.DateTimeFormat("en-CA",{timeZone:"America/New_York"}).format(d);}
+function trimEvent(ev){ // only what the scan reads, so the upload stays small
+  const c=(ev.competitions||[])[0]||{},st=c.status||{},type=st.type||{},h=(c.headlines||[])[0];
+  const link=(ev.links||[]).find(l=>(l.rel||[]).some(r=>r==="recap"||r==="summary"));
+  return {competitions:[{status:{period:st.period,type:{completed:!!type.completed,detail:type.detail}},
+    competitors:(c.competitors||[]).map(x=>({score:x.score,curatedRank:x.curatedRank?{current:x.curatedRank.current}:undefined,
+      team:{name:(x.team||{}).name,location:(x.team||{}).location,displayName:(x.team||{}).displayName}})),
+    headlines:h?[{shortLinkText:h.shortLinkText,description:h.description}]:[]}],
+    links:link?[{rel:link.rel,href:link.href}]:[]};
+}
+async function fetchScoreboards(){
+  const now=new Date(),days=[etDay(new Date(now.getTime()-864e5)),etDay(now)],jobs=[];
+  Object.keys(ESPN_FEEDS).forEach(league=>days.forEach(day=>jobs.push({league,day})));
+  return Promise.all(jobs.map(async({league,day})=>{
+    const q="dates="+day.replace(/-/g,"")+"&limit=300"+(league==="CFB"?"&groups=80":"");
+    try{
+      const r=await fetch(`https://site.api.espn.com/apis/site/v2/sports/${ESPN_FEEDS[league]}/scoreboard?${q}`,{credentials:"omit"});
+      if(!r.ok)return{league,day,error:String(r.status)};
+      const body=await r.json();
+      return{league,day,events:(body.events||[]).filter(e=>((((e.competitions||[])[0]||{}).status||{}).type||{}).completed).map(trimEvent)};
+    }catch(e){return{league,day,error:"couldn't reach ESPN from this device"};}
+  }));
+}
+let lastRefresh=null,scanning=false,autoChecked=false;
 function refreshLabel(){
+  if(scanning)return;
   if(!lastRefresh){$("refreshNote").textContent="";$("refreshBtn").disabled=false;return;}
   const mins=Math.round((Date.now()-new Date(lastRefresh).getTime())/60000);
   $("refreshNote").textContent=`Last check: ${mins<1?"just now":new Date(lastRefresh).toLocaleString([], {weekday:"short",hour:"numeric",minute:"2-digit"})}`;
   $("refreshBtn").disabled=mins<10;
 }
-$("refreshBtn").addEventListener("click",async()=>{
-  const btn=$("refreshBtn");btn.disabled=true;$("refreshNote").textContent="Checking last night's and today's games…";
+async function runScan(auto){
+  if(scanning)return;
+  scanning=true;const btn=$("refreshBtn");btn.disabled=true;$("refreshNote").textContent="Checking last night's and today's games…";
   try{
-    const res=await api.scan();
-    lastRefresh=new Date().toISOString();refreshLabel();
-    toast(res.added?`${res.added} new moment${res.added>1?"s":""}`:"No new moments");
+    const res=await api.scan(await fetchScoreboards());
+    scanning=false;lastRefresh=new Date().toISOString();refreshLabel();
+    if(res.added||!auto)toast(res.added?`${res.added} new moment${res.added>1?"s":""}`:"No new moments");
     if(res.errors&&res.errors.length)$("refreshNote").textContent+=` · ${res.errors.length} problem${res.errors.length>1?"s":""}: ${res.errors[0]}`;
   }catch(e){
-    if(e.code==="cooldown"){lastRefresh=e.at;refreshLabel();toast("Checked less than 10 minutes ago");return;}
-    btn.disabled=false;$("refreshNote").textContent="Couldn't run the check ("+(e.message||"error")+"). Try again in a minute.";}
-});
+    scanning=false;
+    if(e.code==="cooldown"){lastRefresh=e.at;refreshLabel();if(!auto)toast("Checked less than 10 minutes ago");return;}
+    btn.disabled=false;$("refreshNote").textContent="Couldn't run the check ("+(e.message||"error")+"). Try again in a minute.";
+  }
+}
+$("refreshBtn").addEventListener("click",()=>runScan(false));
+/** When the app opens, check for new moments if the last check is a few hours old. */
+function autoScan(){
+  if(autoChecked)return;autoChecked=true;
+  if(!lastRefresh||Date.now()-new Date(lastRefresh).getTime()>AUTO_SCAN_HOURS*36e5)runScan(true);
+}
 setInterval(refreshLabel,60000);
 
 /* library */
@@ -343,5 +379,5 @@ db.collection("templates").onSnapshot(s=>{templates=s.docs.map(d=>({id:d.id,...d
   e=>{$("dbStatus").textContent="Library error: "+e.message;});
 db.collection("moments").orderBy("createdAt","desc").limit(150).onSnapshot(s=>{moments=s.docs.map(d=>({id:d.id,...d.data()}));renderMoments();renderInbox();},()=>{});
 $("refreshBtn").hidden=false;
-db.doc("meta/refresh").onSnapshot(d=>{lastRefresh=d.exists?d.data().at:null;refreshLabel();},()=>{});
+db.doc("meta/refresh").onSnapshot(d=>{lastRefresh=d.exists?d.data().at:null;refreshLabel();autoScan();},()=>{});
 </script>

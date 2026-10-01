@@ -1,6 +1,6 @@
 # Meme Lab on Google Apps Script
 
-The whole Meme Lab as a Google web app: the same five tabs, your data in a Google Sheet, the ESPN scan on Google's scheduled triggers, and Claude through your API key. You don't need Cloudflare for this version.
+The whole Meme Lab as a Google web app: the same five tabs, your data in a Google Sheet, new moments from ESPN's scoreboards, and Claude through your API key. You don't need Cloudflare for this version.
 
 | File | Type | What it does |
 |---|---|---|
@@ -11,7 +11,7 @@ The whole Meme Lab as a Google web app: the same five tabs, your data in a Googl
 | `Rules` | Script | Use cases, blowout margins, Cat Watch teams |
 | `Claude` | Script | Calls the Claude API (use-case suggestions) |
 | `Scan` | Script | ESPN scan + Claude write-ups for new moments |
-| `Setup` | Script | One-time setup: data sheet, your artifact data, scheduled scans |
+| `Setup` | Script | One-time setup: data sheet and your artifact data |
 | `Seed` | Script | Your 15 templates and 26 moments from the artifact |
 | `Index`, `Styles`, `DbClient`, `App` | HTML | The page |
 
@@ -43,7 +43,6 @@ Without a key, everything still works except Claude: scans save moments without 
 2. Google asks for permission: **Review permissions** → your account → "Google hasn't verified this app" → **Advanced** → **Go to Meme Lab (unsafe)** → **Allow**. The warning appears because this is your own unpublished script. It needs:
    - **Google Sheets**, to store your templates and moments
    - **External requests**, to read ESPN scores and call Claude
-   - **Triggers**, to run the scheduled scans
 3. The **Execution log** prints the link to your new **Meme Lab Data** spreadsheet.
 
 Optional checks, both from the same dropdown:
@@ -62,20 +61,15 @@ After you change any file: **Deploy → Manage deployments** → pencil icon →
 
 `Index`, `Styles`, `App` and `Seed` are generated from the shared web app files. If `public/` changes, run `npm run build:apps-script` and paste those four again.
 
-## Scheduled scans
+## Finding new moments
 
-`setup` installs three triggers, in Eastern time:
-- every day between 8 and 9 AM
-- Saturday between 11 PM and midnight
-- Sunday between 11 PM and midnight
-
-Google picks the exact minute within each hour. You can see them under **Triggers** (clock icon). Run `removeScanTriggers` to turn them off; the "Check for new moments" button keeps working. Running `setup` again puts them back without touching your data.
+ESPN refuses requests from Google's (and Cloudflare's) servers, so the page fetches yesterday's and today's scoreboards on your own phone or computer and sends the finished games to the engine, which flags them, has Claude write them up and saves them. It happens when you open the app, if the last check was more than 3 hours ago, and when you press **Check for new moments** (at most every 10 minutes). There are no timed scans; if an older setup installed some, run `removeScanTriggers` (or `setup` again) to remove them. `runScanNow` scans from Google's servers and will show ESPN's 403.
 
 ## Good to know
 
 - **Keep this deployment on "Only myself".** For the Cloudflare app, make a second deployment set to "Anyone" (see `app/README.md`). Every function the page or editor can run checks that it's you, and the app's calls need the app key.
 - **The data sheet has one row per template or moment.** The `data` column holds the full record as JSON. Read it freely, but make edits in the app: a row with broken JSON is skipped.
-- **Free Google accounts have daily quotas:** 20,000 URL fetches and 90 minutes of trigger time. A scan uses about 11 fetches and usually well under a minute.
+- **Free Google accounts have daily quotas** (for example 20,000 URL fetches a day). A check uses one fetch per four new games for Claude, well within them.
 - **ESPN's scoreboard feed is unofficial** and can change without notice. If a league's feed fails, the other leagues still scan, and the button shows "feed problem".
 
 ## Using clasp instead of copy-paste (optional)

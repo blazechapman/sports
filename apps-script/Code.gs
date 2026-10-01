@@ -52,7 +52,7 @@ function apiSet(col, id, data) { ownerOnly_(); return set_(col, id, data); }
 function apiUpdate(col, id, patch) { ownerOnly_(); return update_(col, id, patch); }
 function apiDelete(col, id) { ownerOnly_(); return delete_(col, id); }
 function apiSuggest(input) { ownerOnly_(); return suggest_(input); }
-function apiScan() { ownerOnly_(); return scanButton_(); }
+function apiScan(feeds) { ownerOnly_(); return scanButton_(feeds); }
 
 /** Everything the page shows, in one call. */
 function snapshot_() {
@@ -100,15 +100,18 @@ function suggest_(input) {
   return suggestUseCases_(String(input.name || ''), String(input.how || ''));
 }
 
-/** "Check for new moments" on the Today tab. At most once every 10 minutes. */
-function scanButton_() {
+/**
+ * "Check for new moments" on the Today tab, and the check when the app opens. `feeds` are the
+ * ESPN scoreboards fetched on your device (ESPN blocks Google). At most once every 10 minutes.
+ */
+function scanButton_(feeds) {
   const last = getDoc_('meta', 'refresh');
   if (last && last.at && Date.now() - new Date(last.at).getTime() < SCAN_COOLDOWN_MS) {
     return { error: 'cooldown', at: last.at };
   }
   const at = new Date().toISOString();
   withLock_(() => writeDocs_(sheetFor_('meta'), 'meta', [{ id: 'refresh', data: { at: at } }]));
-  return runScan_();
+  return runScan_(Array.isArray(feeds) ? { feeds: feeds } : undefined);
 }
 
 function checkId_(id) {

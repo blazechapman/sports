@@ -12,7 +12,7 @@ function unwrap(res) {
 }
 const api = {
   suggest: body => gsRun("apiSuggest", body).then(unwrap),
-  scan: () => gsRun("apiScan").then(unwrap),
+  scan: (feeds) => gsRun("apiScan", feeds).then(unwrap),
 };
 function createDb() {
   const POLL_MS = 20000, listeners = new Set();

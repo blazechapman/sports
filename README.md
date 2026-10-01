@@ -4,7 +4,7 @@ Web app version of the Meme Lab artifact (@sportsmemery): match a sports moment 
 
 Two ways to run it, sharing the same UI (`public/app.js`):
 
-- **Google Apps Script:** the page, a Google Sheet for data and Google's scheduled triggers. Setup guide: [`apps-script/README.md`](apps-script/README.md).
+- **Google Apps Script:** the page and a Google Sheet for data. New moments come from ESPN's scoreboards, fetched on your own device (ESPN blocks Google's and Cloudflare's servers) when the app opens or you press Check for new moments. Setup guide: [`apps-script/README.md`](apps-script/README.md).
   - **Installed app on Cloudflare** (like the Brackets app): the same page, hosted on Cloudflare Workers and talking to the Apps Script engine with a private key, so all data stays in the Sheet. Setup guide: [`app/README.md`](app/README.md).
 - **Cloudflare on its own** (separate data in D1, not in use): Pages (static UI in `public/`) + Pages Functions (`functions/api/`) + D1 (SQLite). Its settings are parked in `cloudflare-d1.wrangler.toml` so they don't clash with the installed app's `wrangler.jsonc`. To use it, rename that file to `wrangler.toml` and move `wrangler.jsonc` aside, then follow the steps below.
 

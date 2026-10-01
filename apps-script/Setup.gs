@@ -32,30 +32,25 @@ function setup() {
     }
   });
 
-  installScanTriggers_();
+  removeScanTriggers_(); // ESPN blocks Google's servers; the app scans from your device instead
 
   Logger.log('Data spreadsheet: ' + ss.getUrl());
   Logger.log(seeded ? 'Loaded ' + seeded + ' templates and moments from the artifact.' : 'Existing data kept.');
-  Logger.log('Scans scheduled: every day 8–9 AM ET, plus Saturday and Sunday 11 PM–midnight ET.');
+  Logger.log('New moments are found when you open the app (at most every 3 hours) or press Check for new moments.');
   Logger.log(props.getProperty('ANTHROPIC_API_KEY')
     ? 'Claude API key found.'
     : 'No ANTHROPIC_API_KEY yet. Add it under Project Settings → Script properties to turn on Claude.');
 }
 
-function installScanTriggers_() {
+function removeScanTriggers_() {
   ScriptApp.getProjectTriggers()
     .filter((t) => t.getHandlerFunction() === 'scheduledScan')
     .forEach((t) => ScriptApp.deleteTrigger(t));
-  ScriptApp.newTrigger('scheduledScan').timeBased().everyDays(1).atHour(8).inTimezone(SCAN_TZ).create();
-  ScriptApp.newTrigger('scheduledScan').timeBased().onWeekDay(ScriptApp.WeekDay.SATURDAY).atHour(23).inTimezone(SCAN_TZ).create();
-  ScriptApp.newTrigger('scheduledScan').timeBased().onWeekDay(ScriptApp.WeekDay.SUNDAY).atHour(23).inTimezone(SCAN_TZ).create();
 }
 
-/** Turns the scheduled scans off (the button still works). */
+/** Removes the scheduled scans an earlier setup installed (they fail: ESPN blocks Google). */
 function removeScanTriggers() {
   ownerOnly_();
-  ScriptApp.getProjectTriggers()
-    .filter((t) => t.getHandlerFunction() === 'scheduledScan')
-    .forEach((t) => ScriptApp.deleteTrigger(t));
+  removeScanTriggers_();
   Logger.log('Scheduled scans removed.');
 }
