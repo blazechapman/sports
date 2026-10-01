@@ -13,6 +13,9 @@ function unwrap(res) {
 const api = {
   suggest: body => gsRun("apiSuggest", body).then(unwrap),
   scan: (feeds) => gsRun("apiScan", feeds).then(unwrap),
+  plan: (feeds) => gsRun("apiPlan", feeds).then(unwrap),
+  saveTeams: (lists) => gsRun("apiSaveTeams", lists).then(unwrap),
+  finalize: (input) => gsRun("apiFinalize", input).then(unwrap),
 };
 function createDb() {
   const POLL_MS = 20000, listeners = new Set();

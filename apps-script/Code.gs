@@ -53,13 +53,21 @@ function apiUpdate(col, id, patch) { ownerOnly_(); return update_(col, id, patch
 function apiDelete(col, id) { ownerOnly_(); return delete_(col, id); }
 function apiSuggest(input) { ownerOnly_(); return suggest_(input); }
 function apiScan(feeds) { ownerOnly_(); return scanButton_(feeds); }
+function apiPlan(feeds) { ownerOnly_(); return plan_(feeds); }
+function apiSaveTeams(lists) { ownerOnly_(); return saveTeams_(lists); }
+function apiFinalize(input) { ownerOnly_(); return finalize_(input); }
 
 /** Everything the page shows, in one call. */
 function snapshot_() {
   const moments = listDocs_('moments')
     .sort((a, b) => String(b.data.createdAt || '').localeCompare(String(a.data.createdAt || '')))
     .slice(0, MOMENTS_IN_SNAPSHOT);
-  return { templates: listDocs_('templates'), moments: moments, meta: listDocs_('meta') };
+  const since = new Date(Date.now() - 2 * 864e5).toISOString();
+  const plans = listDocs_('plans')
+    .filter((p) => String(p.data.start || '') >= since)
+    .sort((a, b) => String(a.data.start || '').localeCompare(String(b.data.start || '')))
+    .slice(0, 200);
+  return { templates: listDocs_('templates'), moments: moments, meta: listDocs_('meta'), plans: plans };
 }
 
 function add_(col, data) {

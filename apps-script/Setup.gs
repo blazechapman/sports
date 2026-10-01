@@ -32,6 +32,7 @@ function setup() {
     }
   });
 
+  voiceTab_(); // the Meme Voice tab, with a starter style guide
   removeScanTriggers_(); // ESPN blocks Google's servers; the app scans from your device instead
 
   Logger.log('Data spreadsheet: ' + ss.getUrl());
@@ -51,6 +52,7 @@ function removeScanTriggers_() {
 /** Removes the scheduled scans an earlier setup installed (they fail: ESPN blocks Google). */
 function removeScanTriggers() {
   ownerOnly_();
+  voiceTab_(); // the Meme Voice tab, with a starter style guide
   removeScanTriggers_();
   Logger.log('Scheduled scans removed.');
 }

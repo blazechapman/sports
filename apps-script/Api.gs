@@ -25,6 +25,9 @@ function apiCalls_() {
     apiDelete: delete_,
     apiSuggest: suggest_,
     apiScan: scanButton_,
+    apiPlan: plan_,
+    apiSaveTeams: saveTeams_,
+    apiFinalize: finalize_,
     ping: () => ({ ok: true }),
   };
 }

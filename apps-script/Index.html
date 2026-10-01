@@ -19,6 +19,7 @@
 
   <nav class="tabs" role="tablist">
     <button role="tab" id="tab-today" aria-selected="true" data-tab="today">Today</button>
+    <button role="tab" id="tab-plan" aria-selected="false" data-tab="plan">Plan ahead</button>
     <button role="tab" id="tab-match" aria-selected="false" data-tab="match">Match a moment</button>
     <button role="tab" id="tab-lib" aria-selected="false" data-tab="lib">Template library</button>
     <button role="tab" id="tab-add" aria-selected="false" data-tab="add">Add template</button>
@@ -40,6 +41,24 @@
     <div id="inboxList" class="lib"></div>
   </section>
 
+  <!-- PLAN AHEAD -->
+  <section id="pane-plan" hidden class="stack">
+    <div>
+      <h2>Plan ahead</h2>
+      <p class="sub">Upcoming games worth prepping a meme for (cat fights, Gator Watch, ranked showdowns, upset watch, rivalries), with what to post depending on how it goes.</p>
+    </div>
+    <div class="filters">
+      <label>How far ahead <select id="p-range"><option value="3">Next 3 days</option><option value="7" selected>Next 7 days</option><option value="14">Next 14 days</option></select></label>
+      <button class="btn primary" type="button" id="planBtn">Find matchups</button>
+      <span class="note" id="planNote"></span>
+    </div>
+    <div class="filters">
+      <label>Show <select id="p-show"><option value="open">To prep</option><option value="prepping">Prepping</option><option value="dismissed">Dismissed</option><option value="all">All</option></select></label>
+      <span class="note" id="p-count"></span>
+    </div>
+    <div id="planList" class="lib"></div>
+  </section>
+
   <!-- MATCH -->
   <section id="pane-match" class="grid2" hidden>
     <form class="panel" id="momentForm" autocomplete="off">
@@ -47,7 +66,7 @@
       <div class="row">
         <label>League
           <select id="m-league">
-            <option>NFL</option><option selected>CFB</option><option>MLB</option><option>NBA</option><option>NHL</option>
+            <option>NFL</option><option selected>CFB</option><option>MLB</option><option>NBA</option><option>WNBA</option><option>NHL</option><option value="CBB">College basketball</option>
           </select>
         </label>
         <label>When
@@ -95,7 +114,8 @@
         </label>
         <pre class="out" id="tsvOut"></pre>
         <div class="actions">
-          <button class="btn primary" type="button" id="copyRow">Copy row</button>
+          <button class="btn primary" type="button" id="finalizeMoment" hidden>Finalize for After Effects</button>
+          <button class="btn" type="button" id="copyRow">Copy row</button>
           <button class="btn" type="button" id="markUsed" disabled>Mark template used</button>
           <button class="btn" type="button" id="saveMoment">Save to idea bank</button>
         </div>
@@ -158,10 +178,17 @@
     <div class="panel">
       <h3>Thresholds</h3>
       <dl class="kv">
-        <dt>Blowout / Cat Watch</dt><dd>NFL & CFB 14+ pts · NBA 15+ · MLB 5+ runs · NHL 3+ goals</dd>
-        <dt>Post times (ET)</dt><dd>Just ended: within ~1 hour · Last night: 7:00 PM today · Earlier: next evening 7:00 PM · Weekend NFL/CFB: also a Meme of the Week candidate (Mon 7:00 PM)</dd>
+        <dt>Blowout / Cat Watch</dt><dd>NFL & CFB 14+ pts · NBA, WNBA & college basketball 15+ · MLB 5+ runs · NHL 3+ goals</dd>
+        <dt>Gator Watch</dt><dd>Florida beats a team: the loser is Chubbs (never on a Florida loss)</dd>
+        <dt>Cat fight</dt><dd>Two cat teams play each other</dd>
+        <dt>Post windows (ET)</dt><dd>Morning 8–10 AM · Late night 10 PM–12 AM · the next window that leaves an hour to make the meme · Weekend NFL/CFB: also a Meme of the Week candidate</dd>
         <dt>Rotation</dt><dd>Templates used in the last 7 days drop in the ranking</dd>
       </dl>
+    </div>
+    <div class="panel stack" id="teamsPanel" hidden>
+      <h3>Team numbers for After Effects</h3>
+      <p class="note">Builds a "Teams" tab per league in your data sheet (NFL, NBA, WNBA, MLB, NHL, college football, college basketball), numbered alphabetically: pro teams by nickname, colleges by school. Numbers never change once given; new teams are added at the end. Finalized memes use these numbers.</p>
+      <div class="actions"><button class="btn" type="button" id="teamsBtn">Build / update team lists</button><span class="note" id="teamsNote"></span></div>
     </div>
   </section>
 </div>

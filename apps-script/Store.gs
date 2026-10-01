@@ -5,7 +5,7 @@
  * dates, times or scores into something else.
  */
 
-const MEMELAB_COLLECTIONS = ['templates', 'moments', 'meta'];
+const MEMELAB_COLLECTIONS = ['templates', 'moments', 'meta', 'plans'];
 const MEMELAB_HEADER = ['id', 'label', 'updated_at', 'data'];
 
 function memelabSpreadsheet_() {
@@ -16,8 +16,14 @@ function memelabSpreadsheet_() {
 
 function sheetFor_(col) {
   if (MEMELAB_COLLECTIONS.indexOf(col) < 0) throw new Error('Unknown collection: ' + col);
-  const sh = memelabSpreadsheet_().getSheetByName(col);
-  if (!sh) throw new Error('The "' + col + '" tab is missing. Run setup() again.');
+  const ss = memelabSpreadsheet_();
+  let sh = ss.getSheetByName(col);
+  if (!sh) { // a collection added after setup ran
+    sh = ss.insertSheet(col);
+    sh.getRange('A:D').setNumberFormat('@');
+    sh.getRange(1, 1, 1, 4).setValues([MEMELAB_HEADER]);
+    sh.setFrozenRows(1);
+  }
   return sh;
 }
 
@@ -117,4 +123,37 @@ function withLock_(fn) {
 
 function newId_() {
   return Utilities.getUuid().replace(/-/g, '').slice(0, 20);
+}
+
+/**
+ * A readable tab (Meme Queue, Meme Voice, Teams …) with a header row, made if missing.
+ * plainText keeps Sheets from turning dates and times into something else.
+ */
+function plainTab_(name, header, plainText) {
+  const ss = memelabSpreadsheet_();
+  let sh = ss.getSheetByName(name);
+  if (!sh) {
+    sh = ss.insertSheet(name);
+    if (plainText) sh.getRange(1, 1, sh.getMaxRows(), header.length).setNumberFormat('@');
+    sh.getRange(1, 1, 1, header.length).setValues([header]);
+    sh.setFrozenRows(1);
+  }
+  return sh;
+}
+
+/** Appends rows to a tab, growing it if needed. Call inside withLock_. */
+function appendRows_(sh, rows, plainText) {
+  if (!rows.length) return;
+  const start = sh.getLastRow() + 1;
+  const missing = start + rows.length - 1 - sh.getMaxRows();
+  if (missing > 0) sh.insertRowsAfter(sh.getMaxRows(), missing);
+  const range = sh.getRange(start, 1, rows.length, rows[0].length);
+  if (plainText) range.setNumberFormat('@');
+  range.setValues(rows);
+}
+
+/** All rows below the header of a readable tab. */
+function tabRows_(sh, width) {
+  const last = sh.getLastRow();
+  return last < 2 ? [] : sh.getRange(2, 1, last - 1, width).getValues();
 }

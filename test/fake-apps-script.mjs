@@ -66,6 +66,7 @@ export function loadProject({ http = () => response(404, ""), user = "me@example
   const requests = [];
   const handle = (req) => { requests.push(req); return http(req); };
   const session = { user };
+  const drive = { folders: [] };
   let uidCount = 0;
   const ctx = {
     Session: {
@@ -83,14 +84,24 @@ export function loadProject({ http = () => response(404, ""), user = "me@example
     Utilities: {
       getUuid: () => randomUUID(),
       formatDate: (d, tz, fmt) => {
-        assert.equal(fmt, "yyyy-MM-dd");
-        return new Intl.DateTimeFormat("en-CA", { timeZone: tz }).format(d);
+        const p = Object.fromEntries(new Intl.DateTimeFormat("en-US", { timeZone: tz, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" })
+          .formatToParts(d).map((x) => [x.type, x.value]));
+        const known = { "yyyy-MM-dd": `${p.year}-${p.month}-${p.day}`, "HH:mm": `${p.hour}:${p.minute}`, "yyyyMMdd-HHmmss": `${p.year}${p.month}${p.day}-${p.hour}${p.minute}${p.second}` };
+        assert.ok(fmt in known, "unsupported date format " + fmt);
+        return known[fmt];
       },
     },
     SpreadsheetApp: {
       create: () => { const id = "ss" + (spreadsheets.size + 1); const ss = fakeSpreadsheet(id); spreadsheets.set(id, ss); return ss; },
       openById: (id) => { if (!spreadsheets.has(id)) throw new Error("not found"); return spreadsheets.get(id); },
       getActiveSpreadsheet: () => null,
+    },
+    MimeType: { CSV: "text/csv" },
+    DriveApp: {
+      createFolder: (name) => { const folder = { name, id: "folder" + (drive.folders.length + 1), files: [], getId() { return this.id; },
+        createFile(fname, content, mime) { const f = { name: fname, content, mime, getUrl: () => "https://drive.google.com/file/" + fname }; this.files.push(f); return f; } };
+        drive.folders.push(folder); return folder; },
+      getFolderById: (id) => { const f = drive.folders.find((x) => x.id === id); if (!f) throw new Error("no folder"); return f; },
     },
     UrlFetchApp: {
       fetchAll: (reqs) => reqs.map(handle),
@@ -118,5 +129,5 @@ export function loadProject({ http = () => response(404, ""), user = "me@example
   for (const f of readdirSync(DIR).filter((f) => f.endsWith(".gs")).sort()) {
     vm.runInContext(readFileSync(DIR + f, "utf8"), ctx, { filename: f });
   }
-  return { ctx, props, spreadsheets, triggers, logs, requests, session, run: (code) => vm.runInContext(code, ctx) };
+  return { ctx, props, spreadsheets, triggers, logs, requests, session, drive, run: (code) => vm.runInContext(code, ctx) };
 }

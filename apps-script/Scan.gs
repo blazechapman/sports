@@ -14,8 +14,10 @@ const SCAN_FEEDS = {
   MLB: 'baseball/mlb',
   NBA: 'basketball/nba',
   NHL: 'hockey/nhl',
+  WNBA: 'basketball/wnba',
+  CBB: 'basketball/mens-college-basketball',
 };
-const SCAN_REGULATION = { NFL: 4, CFB: 4, NBA: 4, NHL: 3, MLB: 9 };
+const SCAN_REGULATION = { NFL: 4, CFB: 4, NBA: 4, WNBA: 4, NHL: 3, MLB: 9, CBB: 2 };
 const SCAN_TZ = 'America/New_York';
 const SCAN_MAX_ENRICH = 12; // most games sent to Claude per scan
 const SCAN_CHUNK = 4; // games per Claude request; requests run in parallel
@@ -45,6 +47,7 @@ function runScanNow() {
 function scoreboardUrl_(league, ymd) {
   let q = 'dates=' + ymd.replace(/-/g, '') + '&limit=300';
   if (league === 'CFB') q += '&groups=80'; // FBS only
+  if (league === 'CBB') q += '&groups=50'; // Division I
   return 'https://site.api.espn.com/apis/site/v2/sports/' + SCAN_FEEDS[league] + '/scoreboard?' + q;
 }
 
@@ -84,7 +87,7 @@ function evaluateGame_(ev, league, gameDate) {
     const t = c.team || {};
     const rank = c.curatedRank && c.curatedRank.current;
     return {
-      name: league === 'CFB' ? t.location || t.displayName : t.name || t.displayName,
+      name: COLLEGE_LEAGUES.indexOf(league) >= 0 ? t.location || t.displayName : t.name || t.displayName,
       full: t.displayName || '',
       score: Number(c.score),
       rank: rank && rank < 99 ? rank : null,
@@ -98,6 +101,8 @@ function evaluateGame_(ev, league, gameDate) {
   if (l.rank && (!w.rank || w.rank - l.rank >= 5)) useCases.push('upset');
   if ((comp.status.period || 0) > SCAN_REGULATION[league]) useCases.push('clutch');
   if (useCases.includes('blowout') && isCat_(w.name, w.full)) useCases.push('cat_watch');
+  if (isCat_(w.name, w.full) && isCat_(l.name, l.full)) useCases.push('cat_fight');
+  if (isGators_(w.full)) useCases.push('gator_watch'); // only Florida wins: the loser is Chubbs
   if (!useCases.length) return null;
   const h = (comp.headlines || [])[0] || {};
   const link = (ev.links || []).find((x) => (x.rel || []).includes('recap') || (x.rel || []).includes('summary'));
@@ -155,7 +160,7 @@ function enrichSystem_() {
     '- concept: a meme concept as setup → punchline, naming a well-known template if one fits\n' +
     '- captionStarter: an Instagram caption opener that states the result\n' +
     '- extraUseCases: any other use cases the facts clearly support, else []\n\n' +
-    'Use case ids:\n' + useCaseList_();
+    'Use case ids:\n' + useCaseList_() + voicePrompt_();
 }
 
 /** Claude's write-ups keyed by moment id. Failed chunks are reported in errors. */
@@ -245,6 +250,7 @@ function runScan_(opts) {
   const extra = key && fresh.length ? enrich_(key, fresh.slice(0, SCAN_MAX_ENRICH), errors) : {};
 
   const createdAt = now.toISOString();
+  const slot = nextWindow_(now);
   const docs = fresh.map((c) => {
     const e = extra[c.id] || {};
     const off = !!e.offLimits;
@@ -269,9 +275,10 @@ function runScan_(opts) {
         useCases: off ? [] : useCases,
         offLimits: off,
         potential: off ? 'Low' : potential_(useCases, c.league),
-        urgency: off ? '' : 'Post today',
-        postDate: off ? '' : today,
-        postTime: off ? '' : '7:00 PM',
+        urgency: off ? '' : slot.date === today ? 'Post today' : 'Next window',
+        postDate: off ? '' : slot.date,
+        postTime: off ? '' : slot.time,
+        postWindow: off ? '' : slot.window,
         sources: c.sources,
       },
     };

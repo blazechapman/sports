@@ -13,6 +13,10 @@ The whole Meme Lab as a Google web app: the same five tabs, your data in a Googl
 | `Scan` | Script | ESPN scan + Claude write-ups for new moments |
 | `Setup` | Script | One-time setup: data sheet and your artifact data |
 | `Seed` | Script | Your 15 templates and 26 moments from the artifact |
+| `Plan` | Script | Plan ahead: upcoming matchups and "if this happens" ideas |
+| `Finalize` | Script | Finalize: Meme Queue row + CSV for After Effects |
+| `Teams` | Script | Team numbers per league for After Effects |
+| `Voice` | Script | The Meme Voice tab (style guide + example captions) |
 | `Index`, `Styles`, `DbClient`, `App` | HTML | The page |
 
 ## 1. Create the project
@@ -24,7 +28,7 @@ The whole Meme Lab as a Google web app: the same five tabs, your data in a Googl
 
 Click **+** next to **Files** and pick **Script** or **HTML**. Type the name exactly as shown, without an extension; the editor adds `.gs` or `.html`. Names are case-sensitive, and the order doesn't matter.
 
-- **Script:** `Code` (already exists; replace its contents), `Store`, `Rules`, `Claude`, `Scan`, `Setup`, `Seed`, and `Api` if you'll use the Cloudflare app
+- **Script:** `Code` (already exists; replace its contents), `Store`, `Rules`, `Claude`, `Scan`, `Setup`, `Seed`, `Plan`, `Finalize`, `Teams`, `Voice`, and `Api` if you'll use the Cloudflare app
 - **HTML:** `Index`, `Styles`, `DbClient`, `App`
 
 Paste each file's full contents from this folder, then save (Ctrl/Cmd+S).
@@ -42,7 +46,8 @@ Without a key, everything still works except Claude: scans save moments without 
 1. In the Editor, pick **setup** in the function dropdown at the top, then click **Run**.
 2. Google asks for permission: **Review permissions** → your account → "Google hasn't verified this app" → **Advanced** → **Go to Meme Lab (unsafe)** → **Allow**. The warning appears because this is your own unpublished script. It needs:
    - **Google Sheets**, to store your templates and moments
-   - **External requests**, to read ESPN scores and call Claude
+   - **External requests**, to call Claude
+   - **Google Drive**, to save the CSVs for After Effects in a "Meme Lab Exports" folder
 3. The **Execution log** prints the link to your new **Meme Lab Data** spreadsheet.
 
 Optional checks, both from the same dropdown:
@@ -64,6 +69,17 @@ After you change any file: **Deploy → Manage deployments** → pencil icon →
 ## Finding new moments
 
 ESPN refuses requests from Google's (and Cloudflare's) servers, so the page fetches yesterday's and today's scoreboards on your own phone or computer and sends the finished games to the engine, which flags them, has Claude write them up and saves them. It happens when you open the app, if the last check was more than 3 hours ago, and when you press **Check for new moments** (at most every 10 minutes). There are no timed scans; if an older setup installed some, run `removeScanTriggers` (or `setup` again) to remove them. `runScanNow` scans from Google's servers and will show ESPN's 403.
+
+## Your data sheet's tabs
+
+| Tab | What it is |
+|---|---|
+| `templates`, `moments`, `plans`, `meta` | The app's records (one JSON row each). Edit them in the app. |
+| `Meme Queue` | One readable row per finalized meme: post date and window, template, winner/loser with their team numbers, scores, Text 1–3, Instagram caption, hashtags. |
+| `Meme Voice` | Your house style (Kind `Rule`) and example captions (Kind `Example`). Claude follows it for every caption and on-image text. |
+| `Teams NFL`, `Teams CFB`, … | Team numbers for your After Effects sliders, built from Use cases → **Build / update team lists**. Numbers never change; new teams go at the end. |
+
+Each **Finalize** also saves a one-row CSV (same columns as the Meme Queue) in the **Meme Lab Exports** folder in your Drive, for After Effects to import.
 
 ## Good to know
 

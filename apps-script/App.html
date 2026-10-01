@@ -16,10 +16,13 @@ const USE_CASES=[
  ["hype","Hype","Before a big game, bold predictions"],
  ["milestone","Milestone","Record or career milestone"],
  ["revenge","Revenge game","Facing a former team"],
- ["cat_watch","Cat Watch","A cat team wins by a decent margin"]];
+ ["cat_watch","Cat Watch","A cat team wins by a decent margin"],
+ ["cat_fight","Cat fight","Two cat teams play each other"],
+ ["gator_watch","Gator Watch","Florida beats a team, which gets spooked by the Gators (the Chubbs meme)"]];
 const UC=Object.fromEntries(USE_CASES.map(u=>[u[0],u[1]]));
-const MARGIN={NFL:14,CFB:14,NBA:15,MLB:5,NHL:3};
-const LEAGUE_TAGS={NFL:["#nflmemes","#nfl"],CFB:["#cfbmemes","#collegefootball"],MLB:["#mlbmemes","#baseballmemes"],NBA:["#nbamemes","#nba"],NHL:["#nhlmemes","#hockeymemes"]};
+const MARGIN={NFL:14,CFB:14,NBA:15,WNBA:15,MLB:5,NHL:3,CBB:15};
+const LEAGUE_TAGS={NFL:["#nflmemes","#nfl"],CFB:["#cfbmemes","#collegefootball"],MLB:["#mlbmemes","#baseballmemes"],NBA:["#nbamemes","#nba"],WNBA:["#wnbamemes","#wnba"],NHL:["#nhlmemes","#hockeymemes"],CBB:["#collegebasketball","#cbbmemes"]};
+const LEAGUE_NAMES={NFL:"NFL",CFB:"College football",MLB:"MLB",NBA:"NBA",WNBA:"WNBA",NHL:"NHL",CBB:"College basketball"};
 const CAT_NAMES=["tiger","lion","panther","jaguar","bengal","wildcat","cougar","bobcat","bearcat","lynx","puma","leopard","cheetah","catamount","sabercat",
  "jags","lsu","clemson","auburn","missouri","mizzou","memphis tigers","kentucky","arizona wildcats","kansas state","k-state","northwestern","penn state","pitt","houston cougars","byu","washington state","wsu","cincinnati bearcats","villanova","texas state","ohio bobcats","montana state","towson","grambling","jackson state","tennessee state","uab","northern iowa","prairie view"];
 let db=null, templates=[], moments=[], picked=null, editingId=null;
@@ -41,7 +44,7 @@ function readChips(prefix){return USE_CASES.map(u=>u[0]).filter(id=>$(prefix+"-"
 document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.tab)));
 function showTab(t){
   document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===t));
-  ["today","match","lib","add","guide"].forEach(p=>$("pane-"+p).hidden=p!==t);
+  ["today","plan","match","lib","add","guide"].forEach(p=>$("pane-"+p).hidden=p!==t);
   try{localStorage.setItem("memelab.tab",t)}catch(e){}
 }
 
@@ -69,20 +72,42 @@ function autoUseCases(){
   if($("m-when").value==="future")auto.push("hype");
   const catWin=isCat($("m-winner").value)&&(auto.includes("blowout"));
   if(catWin)auto.push("cat_watch");
+  if(isCat($("m-winner").value)&&isCat($("m-loser").value))auto.push("cat_fight");
+  if(/^florida( gators)?$/i.test($("m-winner").value.trim())&&["CFB","CBB"].includes(lg))auto.push("gator_watch");
   return {auto:[...new Set(auto)],margin,hasScore};
 }
 function currentUseCases(auto){return USE_CASES.map(u=>u[0]).filter(id=>id in manual?manual[id]:auto.includes(id));}
 
+/* when to post: the next window (ET) that leaves an hour to make the meme */
+const POST_WINDOWS=[{label:"Morning",start:8*60,end:10*60,range:"8–10 AM"},{label:"Late night",start:22*60,end:24*60,range:"10 PM–12 AM"}];
+const PREP_MINUTES=60;
+function etParts(d){
+  const p=Object.fromEntries(new Intl.DateTimeFormat("en-US",{timeZone:"America/New_York",hourCycle:"h23",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}).formatToParts(d).map(x=>[x.type,x.value]));
+  return {ymd:`${p.year}-${p.month}-${p.day}`,min:(+p.hour%24)*60+(+p.minute)};
+}
+function minutesLabel(m){const h=Math.floor(m/60)%24;return (h%12||12)+":"+String(m%60).padStart(2,"0")+" "+(h>=12?"PM":"AM");}
+function nextWindow(from,lead=PREP_MINUTES){
+  const ready=new Date(from.getTime()+lead*6e4),readyMin=Math.ceil(etParts(ready).min/15)*15;
+  for(let k=0;k<4;k++){
+    const date=etParts(new Date(ready.getTime()+k*864e5)).ymd;
+    for(const w of POST_WINDOWS){const t=Math.max(w.start,k===0?readyMin:0);if(t<w.end)return {date,time:minutesLabel(t),window:w.label,range:w.range};}
+  }
+  return {date:"",time:"",window:"",range:""};
+}
+function dayLabel(dateStr){
+  const today=etParts(new Date()).ymd,tomorrow=etParts(new Date(Date.now()+864e5)).ymd;
+  if(dateStr===today)return "Today";if(dateStr===tomorrow)return "Tomorrow";
+  const d=new Date(dateStr+"T12:00:00");return isNaN(d)?dateStr:d.toLocaleDateString([], {weekday:"short",month:"short",day:"numeric"});
+}
 function postPlan(){
-  const w=$("m-when").value, lg=$("m-league").value, now=new Date(), d=new Date(now);
-  let urgency="Post today", date, time, note="";
-  if(w==="now"){d.setMinutes(d.getMinutes()+45);d.setMinutes(Math.ceil(d.getMinutes()/15)*15,0,0);date=ymd(d);time=fmtTime(d);note="Fast reaction: post within about an hour.";}
-  else if(w==="night"){if(now.getHours()<18){d.setHours(19,0,0,0);}else{d.setMinutes(d.getMinutes()+30);d.setMinutes(Math.ceil(d.getMinutes()/15)*15,0,0);}date=ymd(d);time=fmtTime(d);note="Still fresh today. Evening slot.";}
-  else if(w==="week"){urgency="Batch";d.setDate(d.getDate()+1);d.setHours(19,0,0,0);date=ymd(d);time=fmtTime(d);note="Past the reaction window. Works as a batch post or a Meme of the Week slide.";}
-  else{urgency="Planned";date="TBD";time="TBD";note="Upcoming. Plan it in the Content Radar and prep both outcomes.";}
+  const w=$("m-when").value, lg=$("m-league").value, now=new Date();
+  if(w==="future")return {urgency:"Planned",date:"TBD",time:"TBD",window:"",note:"Upcoming. Use the Plan ahead tab and prep both outcomes.",motw:false};
+  const slot=nextWindow(now),today=etParts(now).ymd;
+  const urgency=w==="week"?"Batch":slot.date===today?"Post today":"Next window";
+  const note=`${slot.window} window (${slot.range} ET), the next one that leaves an hour to make it.`+(w==="week"?" Past the reaction window: works as a batch post or a Meme of the Week slide.":"");
   const day=now.getDay();
-  const motw=(lg==="NFL"||lg==="CFB")&&(w==="night"||w==="now"||w==="week")&&[0,1,6].includes(day);
-  return {urgency,date,time,note,motw};
+  const motw=(lg==="NFL"||lg==="CFB")&&w!=="future"&&[0,1,6].includes(day);
+  return {urgency,date:slot.date,time:slot.time,window:slot.window,note,motw};
 }
 
 function scoreTemplate(t,ucs,lg){
@@ -106,8 +131,9 @@ function pillarFor(t,ucs){
 function hashtags(lg,winner,loser){
   const team=s=>"#"+(s||"").toLowerCase().replace(/[^a-z0-9]/g,"");
   const tags=["#sportsmemes",...LEAGUE_TAGS[lg]];
-  if(winner)tags.push(team(winner)+(lg==="CFB"?"football":""));
-  if(loser)tags.push(team(loser)+(lg==="CFB"?"football":""));
+  const sfx=lg==="CFB"?"football":lg==="CBB"?"basketball":"";
+  if(winner)tags.push(team(winner)+sfx);
+  if(loser)tags.push(team(loser)+sfx);
   return tags.slice(0,5).join(" ");
 }
 
@@ -130,7 +156,7 @@ function analyze(){
       <div class="chips">${ucs.map(u=>`<span class="pill uc">${esc(UC[u])}</span>`).join("")||'<span class="pill warn">No use case yet: tick one</span>'}${ucs.includes("cat_watch")?' <span class="pill fresh">Cat Watch</span>':""}</div>
       <dl class="kv"><dt>Result</dt><dd>${scoreLine}</dd>
       <dt>Urgency</dt><dd>${plan.urgency}</dd>
-      <dt>Post</dt><dd>${plan.date==="TBD"?"TBD":plan.date+" · "+plan.time+" ET"}</dd>
+      <dt>Post</dt><dd>${plan.date==="TBD"?"TBD":plan.window+" · "+dayLabel(plan.date)+" "+plan.time+" ET"}</dd>
       <dt>Why</dt><dd>${esc(plan.note)}${plan.motw?" Also a Meme of the Week candidate (Mon 7:00 PM).":""}</dd>
       <dt>Format</dt><dd>Reel first (launch mix ~4:1)</dd></dl></div>`;
   }
@@ -164,6 +190,16 @@ async function copyText(txt,el){
   catch(e){const r=document.createRange();r.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(r);toast("Selected. Press Ctrl/Cmd+C to copy");}
 }
 $("copyRow").addEventListener("click",()=>copyText($("tsvOut").textContent,$("tsvOut")));
+$("finalizeMoment").addEventListener("click",async()=>{
+  if(!db)return;const {auto}=autoUseCases();const ucs=currentUseCases(auto);const plan=postPlan();
+  if($("m-offlimits").checked){toast("Off-limits: nothing to finalize");return;}
+  const data={createdAt:new Date().toISOString(),league:$("m-league").value,winner:$("m-winner").value.trim(),loser:$("m-loser").value.trim(),
+    winnerScore:$("m-ws").value===""?null:+$("m-ws").value,loserScore:$("m-ls").value===""?null:+$("m-ls").value,
+    description:$("m-desc").value.trim(),headline:$("m-desc").value.trim(),useCases:ucs,templateId:picked||null,concept:$("m-concept").value.trim(),
+    postDate:plan.date,postTime:plan.time,postWindow:plan.window||"",urgency:plan.urgency};
+  try{const ref=await db.collection("moments").add(data);await finalizeMoment({id:ref.id,...data},picked,$("finalizeMoment"));}
+  catch(e){toast("Couldn't save: "+(e.message||e.code));}
+});
 $("markUsed").addEventListener("click",async()=>{
   const t=templates.find(x=>x.id===picked);if(!t||!db)return;
   try{await db.collection("templates").doc(t.id).update({lastUsed:new Date().toISOString(),timesUsed:(t.timesUsed||0)+1});toast("Marked used: "+t.name);}
@@ -173,7 +209,7 @@ $("saveMoment").addEventListener("click",async()=>{
   if(!db)return;const {auto}=autoUseCases();const ucs=currentUseCases(auto);const plan=postPlan();
   const data={createdAt:new Date().toISOString(),league:$("m-league").value,winner:$("m-winner").value.trim(),loser:$("m-loser").value.trim(),
     winnerScore:$("m-ws").value===""?null:+$("m-ws").value,loserScore:$("m-ls").value===""?null:+$("m-ls").value,
-    description:$("m-desc").value.trim(),useCases:ucs,templateId:picked||null,concept:$("m-concept").value.trim(),postDate:plan.date,postTime:plan.time,urgency:plan.urgency};
+    description:$("m-desc").value.trim(),useCases:ucs,templateId:picked||null,concept:$("m-concept").value.trim(),postDate:plan.date,postTime:plan.time,postWindow:plan.window||"",urgency:plan.urgency};
   try{await db.collection("moments").add(data);toast("Saved to idea bank");}catch(e){toast("Couldn't save: "+(e.message||e.code));}
 });
 function renderMoments(){
@@ -221,12 +257,14 @@ function renderInbox(){
       <div class="chips">${off?'<span class="pill warn">Off-limits · report only</span>':`<span class="pill ${m.potential==="High"?"fresh":""}">${esc(m.potential||"")} potential</span>`}
         ${(m.useCases||[]).map(u=>`<span class="pill uc">${esc(UC[u]||u)}</span>`).join("")}</div>
       ${m.description&&m.headline?`<div class="why">${esc(m.description)}</div>`:""}
-      ${off?"":`<dl class="kv"><dt>Post</dt><dd>${esc(m.urgency||"")} · ${esc(m.postDate||"")} ${esc(m.postTime||"")} ET</dd>${m.concept?`<dt>Idea</dt><dd>${esc(m.concept)}</dd>`:""}</dl>
+      ${off?"":`<dl class="kv"><dt>Post</dt><dd>${m.postWindow?esc(m.postWindow)+" · "+esc(dayLabel(m.postDate))+" "+esc(m.postTime||"")+" ET":esc(m.urgency||"")+" · "+esc(m.postDate||"")+" "+esc(m.postTime||"")+" ET"}</dd>${m.concept?`<dt>Idea</dt><dd>${esc(m.concept)}</dd>`:""}${m.text1?`<dt>On image</dt><dd>${esc([m.text1,m.text2,m.text3].filter(Boolean).join(" / "))}</dd>`:""}</dl>
+      ${m.csvUrl?`<div class="note">Finalized: <a href="${esc(m.csvUrl)}" target="_blank" rel="noopener">${esc(m.csvName||"CSV for After Effects")}</a></div>`:""}
       <div class="chips">${ranked.map(r=>`<button type="button" class="chk${r.t.id===pick?" auto":""}" data-ip="${esc(m.id)}|${esc(r.t.id)}">${esc(r.t.name)}</button>`).join("")||'<span class="note">No tagged template fits yet.</span>'}</div>`}
       ${(m.sources||[]).length?`<div class="note">Source: ${(m.sources||[]).slice(0,2).map(u=>`<a href="${esc(u)}" target="_blank" rel="noopener">${esc((u.split("/")[2]||u))}</a>`).join(" · ")}</div>`:""}
       <div class="actions">
-        ${off?"":`<button class="btn small primary" type="button" data-copy="${esc(m.id)}">Copy row</button>
-        <button class="btn small" type="button" data-queue="${esc(m.id)}">${(m.status||"new")==="queued"?"Queued ✓":"Mark queued"}</button>
+        ${off?"":`${canFinalize()?`<button class="btn small primary" type="button" data-final="${esc(m.id)}">${m.csvUrl?"Finalize again":"Finalize"}</button>`:""}
+        <button class="btn small${canFinalize()?"":" primary"}" type="button" data-copy="${esc(m.id)}">Copy row</button>
+        ${canFinalize()?"":`<button class="btn small" type="button" data-queue="${esc(m.id)}">${(m.status||"new")==="queued"?"Queued ✓":"Mark queued"}</button>`}
         <button class="btn small" type="button" data-load="${esc(m.id)}">Open in matcher</button>`}
         <button class="btn small" type="button" data-dismiss="${esc(m.id)}">${(m.status||"new")==="dismissed"?"Restore":"Dismiss"}</button>
       </div></div>`;}).join("");
@@ -243,12 +281,31 @@ function renderInbox(){
   host.querySelectorAll("[data-dismiss]").forEach(b=>b.addEventListener("click",async()=>{const m=moments.find(x=>x.id===b.dataset.dismiss);
     try{await db.collection("moments").doc(m.id).update({status:(m.status||"new")==="dismissed"?"new":"dismissed"});}catch(e){toast("Couldn't save: "+(e.message||e.code));}}));
   host.querySelectorAll("[data-load]").forEach(b=>b.addEventListener("click",()=>{loadMoment(b.dataset.load);showTab("match");}));
+  host.querySelectorAll("[data-final]").forEach(b=>b.addEventListener("click",()=>{const m=moments.find(x=>x.id===b.dataset.final);
+    const ranked=templates.map(t=>scoreTemplate(t,m.useCases||[],m.league)).filter(Boolean).filter(r=>r.overlap.length).sort((a,c)=>c.s-a.s);
+    finalizeMoment(m,inboxPick[m.id]||m.templateId||(ranked[0]&&ranked[0].t.id)||null,b);}));
 }
 $("t-show").addEventListener("input",renderInbox);
 
+/* finalize: Claude writes the on-image text in your voice; the engine adds a Meme Queue row,
+   saves a CSV for After Effects in Drive, and marks the moment queued */
+function canFinalize(){return typeof api!=="undefined"&&typeof api.finalize==="function";}
+async function finalizeMoment(m,templateId,btn){
+  if(!templateId&&!confirm("No template picked. Finalize anyway?"))return;
+  const label=btn?btn.textContent:"";if(btn){btn.disabled=true;btn.textContent="Writing…";}
+  try{
+    const res=await api.finalize({momentId:m.id,templateId,hashtags:hashtags(m.league,m.winner,m.loser)});
+    toast("Saved to Meme Queue + CSV (it's under Show: Queued)");
+    return res;
+  }catch(e){toast("Couldn't finalize: "+(e.message||e.code));}
+  finally{if(btn){btn.disabled=false;btn.textContent=label;}}
+}
+
 /* moment scan: ESPN refuses Google's and Cloudflare's servers, so this device fetches yesterday's and
    today's scoreboards and sends the finished games to the engine, which flags them and saves moments */
-const ESPN_FEEDS={NFL:"football/nfl",CFB:"football/college-football",MLB:"baseball/mlb",NBA:"basketball/nba",NHL:"hockey/nhl"};
+const ESPN_FEEDS={NFL:"football/nfl",CFB:"football/college-football",MLB:"baseball/mlb",NBA:"basketball/nba",WNBA:"basketball/wnba",NHL:"hockey/nhl",CBB:"basketball/mens-college-basketball"};
+const ESPN_GROUPS={CFB:"80",CBB:"50"}; // FBS, Division I
+const espnUrl=(league,kind,q)=>`https://site.api.espn.com/apis/site/v2/sports/${ESPN_FEEDS[league]}/${kind}?${q}${ESPN_GROUPS[league]?"&groups="+ESPN_GROUPS[league]:""}`;
 const AUTO_SCAN_HOURS=3;
 function etDay(d){return new Intl.DateTimeFormat("en-CA",{timeZone:"America/New_York"}).format(d);}
 function trimEvent(ev){ // only what the scan reads, so the upload stays small
@@ -264,9 +321,8 @@ async function fetchScoreboards(){
   const now=new Date(),days=[etDay(new Date(now.getTime()-864e5)),etDay(now)],jobs=[];
   Object.keys(ESPN_FEEDS).forEach(league=>days.forEach(day=>jobs.push({league,day})));
   return Promise.all(jobs.map(async({league,day})=>{
-    const q="dates="+day.replace(/-/g,"")+"&limit=300"+(league==="CFB"?"&groups=80":"");
     try{
-      const r=await fetch(`https://site.api.espn.com/apis/site/v2/sports/${ESPN_FEEDS[league]}/scoreboard?${q}`,{credentials:"omit"});
+      const r=await fetch(espnUrl(league,"scoreboard","dates="+day.replace(/-/g,"")+"&limit=300"),{credentials:"omit"});
       if(!r.ok)return{league,day,error:String(r.status)};
       const body=await r.json();
       return{league,day,events:(body.events||[]).filter(e=>((((e.competitions||[])[0]||{}).status||{}).type||{}).completed).map(trimEvent)};
@@ -367,6 +423,85 @@ $("suggestBtn").addEventListener("click",async()=>{
   const cur=readChips("auc");renderChips($("a-uc"),"auc",[...new Set([...cur,...ucs])],ucs);btn.disabled=false;
 });
 
+/* plan ahead: this device fetches ESPN's upcoming schedule (ESPN blocks servers); the engine flags
+   matchups worth prepping and Claude writes "if this happens, post this" ideas */
+const PLAN_LABELS={gator_watch:"Gator Watch",cat_fight:"Cat fight",ranked_showdown:"Ranked showdown",upset_watch:"Upset watch",rivalry:"Rivalry"};
+let plans=[];
+function trimUpcoming(ev){
+  const c=(ev.competitions||[])[0]||{};
+  return {date:ev.date,competitions:[{date:c.date||ev.date,status:{type:{state:((c.status||{}).type||{}).state}},
+    competitors:(c.competitors||[]).map(x=>({homeAway:x.homeAway,curatedRank:x.curatedRank?{current:x.curatedRank.current}:undefined,
+      team:{name:(x.team||{}).name,location:(x.team||{}).location,displayName:(x.team||{}).displayName}})),
+    notes:(c.notes||[]).map(n=>({headline:n.headline}))}]};
+}
+async function fetchUpcoming(days){
+  const now=new Date(),from=etParts(now).ymd.replace(/-/g,""),to=etParts(new Date(now.getTime()+days*864e5)).ymd.replace(/-/g,"");
+  return Promise.all(Object.keys(ESPN_FEEDS).map(async league=>{
+    try{
+      const r=await fetch(espnUrl(league,"scoreboard",`dates=${from}-${to}&limit=1000`),{credentials:"omit"});
+      if(!r.ok)return{league,error:String(r.status)};
+      const body=await r.json();
+      return{league,events:(body.events||[]).filter(e=>((((e.competitions||[])[0]||{}).status||{}).type||{}).state==="pre").map(trimUpcoming)};
+    }catch(e){return{league,error:"couldn't reach ESPN from this device"};}
+  }));
+}
+$("planBtn").addEventListener("click",async()=>{
+  const btn=$("planBtn");btn.disabled=true;$("planNote").textContent="Looking at the schedule…";
+  try{
+    const res=await api.plan(await fetchUpcoming(+$("p-range").value));
+    $("planNote").textContent=`${res.found} matchup${res.found===1?"":"s"} with an angle · ${res.added} new`+
+      (res.errors&&res.errors.length?` · ${res.errors.length} problem${res.errors.length>1?"s":""}: ${res.errors[0]}`:"");
+  }catch(e){$("planNote").textContent="Couldn't plan ("+(e.message||"error")+").";}
+  finally{btn.disabled=false;}
+});
+const planStatus=p=>p.status||"upcoming";
+const planOpen=p=>planStatus(p)==="upcoming"&&(p.start||"")>=new Date(Date.now()-6*36e5).toISOString();
+function renderPlans(){
+  const host=$("planList"),show=$("p-show").value;
+  const list=plans.filter(p=>show==="all"||(show==="open"?planOpen(p):planStatus(p)===show));
+  $("p-count").textContent=`${plans.filter(planOpen).length} to prep`;
+  if(!list.length){host.innerHTML=`<div class="empty">${show==="open"?"Nothing to prep yet. Pick how far ahead and press Find matchups.":"Nothing here."}</div>`;return;}
+  const rank=r=>r?"#"+r+" ":"";
+  host.innerHTML=list.map(p=>{
+    const when=p.start?new Date(p.start).toLocaleString([], {weekday:"short",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}):"";
+    return `<div class="card">
+      <div class="head"><span class="tname">${esc(p.headline)}</span><span class="meta">${esc(LEAGUE_NAMES[p.league]||p.league)} · ${esc(when)}</span></div>
+      <div class="meta">${esc(rank(p.awayRank)+(p.awayFull||p.away))} at ${esc(rank(p.homeRank)+(p.homeFull||p.home))}${p.notes?" · "+esc(p.notes):""}</div>
+      <div class="chips">${(p.angles||[]).map(a=>`<span class="pill ${a==="gator_watch"||a==="cat_fight"?"fresh":"uc"}">${esc(PLAN_LABELS[a]||a)}</span>`).join("")}</div>
+      ${(p.scenarios||[]).length?`<dl class="kv">${p.scenarios.map(sc=>`<dt>${esc(sc.outcome)}</dt><dd>${esc(sc.idea)}${sc.template?` <span class="pill">${esc(sc.template)}</span>`:""}</dd>`).join("")}</dl>`
+        :'<p class="note">No ideas written (Claude is off or didn\'t answer). The angle is still worth a look.</p>'}
+      <dl class="kv"><dt>Post</dt><dd>${esc(p.postWindow||"")} · ${esc(dayLabel(p.postDate||""))} ${esc(p.postTime||"")} ET, after the game</dd></dl>
+      <div class="actions">
+        <button class="btn small${planStatus(p)==="prepping"?"":" primary"}" type="button" data-prep="${esc(p.id)}">${planStatus(p)==="prepping"?"Prepping ✓":"Prep this"}</button>
+        <button class="btn small" type="button" data-pdis="${esc(p.id)}">${planStatus(p)==="dismissed"?"Restore":"Dismiss"}</button>
+      </div></div>`;}).join("");
+  const setStatus=async(id,next)=>{try{await db.collection("plans").doc(id).update({status:next});}catch(e){toast("Couldn't save: "+(e.message||e.code));}};
+  host.querySelectorAll("[data-prep]").forEach(b=>b.addEventListener("click",()=>{const p=plans.find(x=>x.id===b.dataset.prep);setStatus(p.id,planStatus(p)==="prepping"?"upcoming":"prepping");}));
+  host.querySelectorAll("[data-pdis]").forEach(b=>b.addEventListener("click",()=>{const p=plans.find(x=>x.id===b.dataset.pdis);setStatus(p.id,planStatus(p)==="dismissed"?"upcoming":"dismissed");}));
+}
+$("p-show").addEventListener("input",renderPlans);
+
+/* team numbers for After Effects: this device fetches ESPN's team lists; the engine numbers them */
+async function fetchTeams(){
+  return Promise.all(Object.keys(ESPN_FEEDS).map(async league=>{
+    try{
+      const r=await fetch(espnUrl(league,"teams","limit=1000"),{credentials:"omit"});
+      if(!r.ok)return{league,teams:[]};
+      const body=await r.json();
+      const list=((((body.sports||[])[0]||{}).leagues||[])[0]||{}).teams||[];
+      return{league,teams:list.map(x=>x.team||{}).map(t=>({id:t.id,name:t.name,location:t.location,displayName:t.displayName,abbr:t.abbreviation}))};
+    }catch(e){return{league,teams:[]};}
+  }));
+}
+$("teamsBtn").addEventListener("click",async()=>{
+  const btn=$("teamsBtn");btn.disabled=true;$("teamsNote").textContent="Getting team lists…";
+  try{
+    const res=await api.saveTeams(await fetchTeams());
+    $("teamsNote").textContent=Object.entries(res).filter(([,r])=>r.total).map(([lg,r])=>`${LEAGUE_NAMES[lg]||lg}: ${r.total}${r.added?` (+${r.added} new)`:""}`).join(" · ")||"No team lists came back from ESPN.";
+  }catch(e){$("teamsNote").textContent="Couldn't build the lists ("+(e.message||"error")+").";}
+  finally{btn.disabled=false;}
+});
+
 /* guide */
 $("guideList").innerHTML=USE_CASES.map(([id,n,d])=>`<div><b>${esc(n)}</b>${esc(d)}</div>`).join("");
 
@@ -379,5 +514,11 @@ db.collection("templates").onSnapshot(s=>{templates=s.docs.map(d=>({id:d.id,...d
   e=>{$("dbStatus").textContent="Library error: "+e.message;});
 db.collection("moments").orderBy("createdAt","desc").limit(150).onSnapshot(s=>{moments=s.docs.map(d=>({id:d.id,...d.data()}));renderMoments();renderInbox();},()=>{});
 $("refreshBtn").hidden=false;
+// features the Apps Script engine has (the older Cloudflare-only version doesn't)
+const engineHas=fn=>typeof api!=="undefined"&&typeof api[fn]==="function";
+$("finalizeMoment").hidden=!engineHas("finalize");
+$("teamsPanel").hidden=!engineHas("saveTeams");
+$("tab-plan").hidden=!engineHas("plan");
+if(engineHas("plan"))db.collection("plans").onSnapshot(s=>{plans=s.docs.map(d=>({id:d.id,...d.data()}));renderPlans();},()=>{});
 db.doc("meta/refresh").onSnapshot(d=>{lastRefresh=d.exists?d.data().at:null;refreshLabel();autoScan();},()=>{});
 </script>
