@@ -434,16 +434,26 @@ function trimUpcoming(ev){
       team:{name:(x.team||{}).name,location:(x.team||{}).location,displayName:(x.team||{}).displayName}})),
     notes:(c.notes||[]).map(n=>({headline:n.headline}))}]};
 }
+/* Runs fn over items, a few at a time, so dozens of ESPN requests don't all go at once. */
+async function inBatches(items,size,fn){const out=[];for(let i=0;i<items.length;i+=size)out.push(...await Promise.all(items.slice(i,i+size).map(fn)));return out;}
+/* One scoreboard request per league per day, the same request the Today scan uses (ESPN rejects
+   date ranges and big page sizes with a 400). Returns one feed per league. */
 async function fetchUpcoming(days){
-  const now=new Date(),from=etParts(now).ymd.replace(/-/g,""),to=etParts(new Date(now.getTime()+days*864e5)).ymd.replace(/-/g,"");
-  return Promise.all(Object.keys(ESPN_FEEDS).map(async league=>{
+  const now=new Date(),dates=[];
+  for(let k=0;k<=days;k++)dates.push(etParts(new Date(now.getTime()+k*864e5)).ymd.replace(/-/g,""));
+  const jobs=[];Object.keys(ESPN_FEEDS).forEach(league=>dates.forEach(d=>jobs.push({league,d})));
+  const replies=await inBatches(jobs,8,async({league,d})=>{
     try{
-      const r=await fetch(espnUrl(league,"scoreboard",`dates=${from}-${to}&limit=1000`),{credentials:"omit"});
+      const r=await fetch(espnUrl(league,"scoreboard",`dates=${d}&limit=300`),{credentials:"omit"});
       if(!r.ok)return{league,error:String(r.status)};
       const body=await r.json();
       return{league,events:(body.events||[]).filter(e=>((((e.competitions||[])[0]||{}).status||{}).type||{}).state==="pre").map(trimUpcoming)};
     }catch(e){return{league,error:"couldn't reach ESPN from this device"};}
-  }));
+  });
+  return Object.keys(ESPN_FEEDS).map(league=>{
+    const mine=replies.filter(r=>r.league===league),ok=mine.filter(r=>r.events);
+    return ok.length?{league,events:ok.flatMap(r=>r.events)}:{league,error:(mine[0]||{}).error||"no schedule"};
+  });
 }
 $("planBtn").addEventListener("click",async()=>{
   const btn=$("planBtn");btn.disabled=true;$("planNote").textContent="Looking at the schedule…";
@@ -485,7 +495,8 @@ $("p-show").addEventListener("input",renderPlans);
 async function fetchTeams(){
   return Promise.all(Object.keys(ESPN_FEEDS).map(async league=>{
     try{
-      const r=await fetch(espnUrl(league,"teams","limit=1000"),{credentials:"omit"});
+      let r=await fetch(espnUrl(league,"teams","limit=500"),{credentials:"omit"});
+      if(!r.ok)r=await fetch(espnUrl(league,"teams","limit=100"),{credentials:"omit"});
       if(!r.ok)return{league,teams:[]};
       const body=await r.json();
       const list=((((body.sports||[])[0]||{}).leagues||[])[0]||{}).teams||[];
