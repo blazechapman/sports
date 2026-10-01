@@ -15,12 +15,18 @@ export default {
     }
     const upstream = `https://site.api.espn.com/apis/site/v2/sports/${m[1]}/scoreboard?${url.searchParams}`;
     const res = await fetch(upstream, {
-      headers: { accept: "application/json", "user-agent": "Mozilla/5.0 (compatible; MemeLab/1.0)" },
+      // ESPN's servers turn away requests that don't look like a browser.
+      headers: {
+        accept: "application/json, text/plain, */*",
+        "accept-language": "en-US,en;q=0.9",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+        referer: "https://www.espn.com/",
+      },
       cf: { cacheTtl: 300, cacheEverything: true }, // the same scoreboard is reused for 5 minutes
     });
     return new Response(res.body, {
       status: res.status,
-      headers: { "content-type": res.headers.get("content-type") || "application/json", "cache-control": "no-store", "x-robots-tag": "noindex" },
+      headers: { "content-type": res.headers.get("content-type") || "application/json", "cache-control": "no-store", "x-robots-tag": "noindex", "x-memelab-relay": "espn " + res.status },
     });
   },
 };

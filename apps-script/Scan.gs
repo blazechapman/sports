@@ -201,7 +201,9 @@ function runScan_(opts) {
   feeds.forEach((r, i) => {
     const j = jobs[i];
     if (r.status !== 200) {
-      errors.push(j.league + ' feed ' + (r.error || r.status) + (r.status === 403 && !PropertiesService.getScriptProperties().getProperty('ESPN_RELAY') ? ' (ESPN blocks Google: set ESPN_RELAY)' : ''));
+      // A few words of the reply show who refused (ESPN, Cloudflare or Google).
+      const said = String(r.text || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80);
+      errors.push(j.league + ' feed ' + (r.error || r.status) + (said ? ' "' + said + '"' : '') + (r.status === 403 && !PropertiesService.getScriptProperties().getProperty('ESPN_RELAY') ? ' (ESPN blocks Google: set ESPN_RELAY)' : ''));
       return;
     }
     const body = parseData_(r.text);
